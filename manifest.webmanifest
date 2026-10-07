@@ -1,0 +1,16 @@
+{
+  "name":"Training Grounds",
+  "short_name":"Training Grounds",
+  "description": "A medieval-fantasy RPG that turns your workouts into rank, gold, gear and battles.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f3efe8",
+  "theme_color": "#a33a35",
+  "icons": [
+    {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
