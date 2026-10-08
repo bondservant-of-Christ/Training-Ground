@@ -38,7 +38,7 @@ function statsSheet(){
   const row=(l,v,h,b)=>`<div class="card"><div class="row"><b class="sp">${l}</b>${b?`<span style="color:var(--acc);font-weight:600">+${b} gear</span>`:""}<b style="font:700 22px Cinzel,serif">${v}</b></div><div class="mu" style="margin:2px 0 0;font-size:13px">${h}</div></div>`;
   $("#info").innerHTML=`<div class="sheet">${sheetHead("Stats")}
   <div class="card row" style="margin-top:12px">${medal(lv,92,lg.length>0)}<div class="sp"><div style="color:${COL[lv/3|0]};font:700 18px Cinzel,serif">${rname(lv)}</div><div style="font:700 26px Cinzel,serif">Level ${c.L}</div><div class="mu" style="margin:0;font-size:13px">${S.xp.toLocaleString()} total XP</div></div></div>
-  <h2>Attributes</h2>${row("Strength",c.str,"Grows as you rank up weighted lifts.")}${row("Endurance",c.end,"Grows as you rank up bodyweight exercises.")}${row("Vitality",c.vit,"Grows with your level and completed workouts.")}
+  <h2>Attributes</h2>${row("Strength",c.str,"Grows as you rank up weighted lifts.")}${row("Endurance",c.end,"Grows as you rank up bodyweight and timed cardio exercises.")}${row("Vitality",c.vit,"Grows with your level and completed workouts.")}
   <h2>Combat</h2>${row("Attack",c.atk,"Strength × 2, plus your weapon.",c.g.atk)}${row("Defense",c.def,"Endurance, plus your armor.",c.g.def)}${row("Health",c.hp,"50, plus Vitality × 10, plus gear.",c.g.hp)}
   <h2>Journey</h2><div class="stats" style="margin-top:0"><div class="stat"><b>${S.log.length}</b><span>Workouts</span></div><div class="stat"><b>${Math.round(tot)}m</b><span>Training time</span></div><div class="stat"><b>${S.gold.toLocaleString()}</b><span>Gold</span></div></div></div>`;
   openSheet();
