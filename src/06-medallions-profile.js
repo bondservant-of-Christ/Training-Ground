@@ -51,8 +51,8 @@ function profile(){
   const top=[...lg].sort((a,b)=>rk(b)-rk(a)).slice(0,3),since=new Date(S.since||Date.now()).toLocaleDateString(undefined,{month:"short",year:"numeric"});
   const st=(v,l,z)=>`<div class="stat"><b style="font-size:${z||24}px">${v}</b><span>${l}</span></div>`;
   return `<div class="card" style="padding:18px 14px"><div class="row" style="gap:16px">
-  <div style="text-align:center;flex:none">${avatar(104,lv)}<div style="font:700 18px Cinzel,serif;margin-top:8px;max-width:112px;overflow-wrap:anywhere">${esc(S.name)}</div></div>
-  <div class="sp"><div style="color:${c};font:700 18px Cinzel,serif">${rname(lv)}</div><div style="font:700 32px/1.15 Cinzel,serif">Level ${L}</div>
+  <div style="flex:none">${avatar(104,lv)}</div>
+  <div class="sp"><div style="font:700 21px/1.2 Cinzel,serif;overflow-wrap:anywhere">${esc(S.name)}</div><div style="color:${c};font:700 17px Cinzel,serif;margin-top:2px">${rname(lv)}</div><div style="font:700 32px/1.15 Cinzel,serif">Level ${L}</div>
   <div class="bar" style="height:12px;margin-top:8px"><i style="width:${x/n*100}%;background:var(--acc)"></i></div>
   <div class="mu" style="margin:4px 0 0;font-size:13px">${x} / ${n} XP</div>
   <div class="mu" style="margin:0;font-size:12px">${lg.length?`Average rank ${av.toFixed(1)} of 29`:"Log a workout to earn a rank"}</div></div></div>
