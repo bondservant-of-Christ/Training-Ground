@@ -5,5 +5,12 @@ service cloud.firestore {
     match /saves/{uid} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
     }
+    // Public player cards for the friends list. Any signed-in player can open a card
+    // or look one up by friend code (one result at a time); only the owner can change it.
+    match /players/{uid} {
+      allow get: if request.auth != null;
+      allow list: if request.auth != null && request.query.limit <= 1;
+      allow write: if request.auth != null && request.auth.uid == uid;
+    }
   }
 }

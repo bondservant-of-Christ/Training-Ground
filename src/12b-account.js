@@ -12,7 +12,7 @@ function fbLoad(){
   fbP=(window.firebase&&firebase.auth?Promise.resolve():ld("app").then(()=>Promise.all([ld("auth"),ld("firestore")]))).then(()=>{
     if(!firebase.apps.length)firebase.initializeApp(FB_CFG);
     AU=firebase.auth();DB=firebase.firestore();
-    AU.onAuthStateChanged(u=>{USER=u;authReady=true;choice=null;if(u)sync();else syncSt="off";acctRefresh()});
+    AU.onAuthStateChanged(u=>{USER=u;authReady=true;choice=null;if(typeof frOpen=="function"&&frOpen())friendsSheet(1);if(u)sync();else syncSt="off";acctRefresh()});
   }).catch(e=>{fbP=null;throw e});
   return fbP;
 }
@@ -60,6 +60,7 @@ async function sync(){
   }catch(e){pend=true;syncSt="err";syncErr=etxt(e)}
   finally{
     busy=false;acctRefresh();
+    if(USER&&syncSt=="ok"&&typeof pubProfile=="function")pubProfile();
     const now=again;again=false;
     if(USER&&!choice&&syncSt=="ok"&&(now||pend||(S.mt||0)>(S.ms||0))){clearTimeout(pushT);pushT=setTimeout(sync,now?0:2500)}
   }

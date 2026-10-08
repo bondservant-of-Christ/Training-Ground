@@ -58,7 +58,7 @@ function profile(){
   <div class="mu" style="margin:0;font-size:12px">${lg.length?`Average rank ${av.toFixed(1)} of 29`:"Log a workout to earn a rank"}</div></div></div>
   <p class="${S.bio?"":"mu"}" style="margin:14px 0 0;text-align:center;white-space:pre-wrap">${S.bio?esc(S.bio):"No bio yet. Tap Edit profile to add one."}</p>
   <div class="gap" style="justify-content:center"><button class="btn sm" onclick="editing=true;render()">Edit profile</button><button class="btn sm ghost" onclick="settings()">Settings</button></div></div>
-  ${acctCard()}${hpCard()}
+  ${acctCard()}${frCard()}${hpCard()}
   <div class="stats" style="margin:0 0 12px">${[["Equipment","pslot=null;equipSheet()",'<path d="M14.5 3H21v6.5l-9 9-3-3zM5 14l5 5M3 21l3-3"/>'],["Inventory","invSheet()",'<path d="M6 8h12l1 12H5zM9 8V6a3 3 0 0 1 6 0v2"/>'],["Stats","statsSheet()",'<path d="M5 20V10M12 20V4M19 20v-7"/>']].map(([l,f,pth])=>`<button class="btn ghost" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 4px" onclick="${f}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${pth}</svg>${l}</button>`).join("")}</div>
   <div class="stats">${st(S.log.length,"Workouts")}${st(tt,"Training time",20)}${st(lg.length,"Medallions")}</div>
   <div class="stats" style="margin-top:0">${st(S.routines.length,"Routines")}${st(top.length?rname(rk(top[0])):"None","Top rank",15)}${st(since,"Member since",15)}</div>
