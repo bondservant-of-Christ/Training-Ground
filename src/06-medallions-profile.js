@@ -1,7 +1,8 @@
 function medallions(){
   const lg=logged().sort((a,b)=>rk(b)-rk(a)||a.localeCompare(b));
   return `<div class="row"><h1 class="sp">Medallions</h1><button class="btn ghost" aria-label="Medallion guide" onclick="guide()" style="width:38px;height:38px;padding:0;border-radius:50%;flex:none">?</button></div>
-  ${lg.length?`<div class="mg" style="margin-top:12px">${lg.map(ex=>{const q=pinfo(ex),c=COL[q.i/3|0];return `<button class="mc" style="border:3px solid transparent;background:linear-gradient(var(--panel),var(--panel)) padding-box,${metal(c)} border-box;box-shadow:0 2px 10px ${c}40" onclick="info('${ex}')">${medal(q.i,168)}<b class="ti">${ex}</b><div class="pr">${pbox(ex)}</div><div class="pb"><div class="bar"><i style="width:${q.pct}%;background:${c}"></i></div><div style="color:${c};font-weight:600;font-size:13px;margin-top:6px">${rname(q.i)}</div><div class="mu" style="margin:0;font-size:12px">${q.goal}</div></div></button>`}).join("")}</div>`:`<p class="mu" style="margin-top:8px">You have not discovered any workouts.</p>`}
+  <p class="mu">${lg.length} of ${Object.keys(EX).length} medallions discovered</p>
+  ${lg.length?`<div class="mg">${lg.map(ex=>{const q=pinfo(ex),c=COL[q.i/3|0];return `<button class="mc" style="border:3px solid transparent;background:linear-gradient(var(--panel),var(--panel)) padding-box,${metal(c)} border-box;box-shadow:0 2px 10px ${c}40" onclick="info('${ex}')">${medal(q.i,168)}<b class="ti">${ex}</b><div class="pr">${pbox(ex)}</div><div class="pb"><div class="bar"><i style="width:${q.pct}%;background:${c}"></i></div><div style="color:${c};font-weight:600;font-size:13px;margin-top:6px">${rname(q.i)}</div><div class="mu" style="margin:0;font-size:12px">${q.goal}</div></div></button>`}).join("")}</div>`:`<p class="mu">You have not discovered any workouts.</p>`}
   <button class="btn ghost" style="margin-top:16px" onclick="allw()">View all Workouts</button>`;
 }
 function allw(keep){
