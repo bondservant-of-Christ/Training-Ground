@@ -5,11 +5,34 @@ service cloud.firestore {
     match /saves/{uid} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
     }
-    // Public player cards for the friends list. Any signed-in player can open a card
+    // Public player card (name, picture, rank, level, friend code). Any signed-in player can open one
     // or look one up by friend code (one result at a time); only the owner can change it.
     match /players/{uid} {
       allow get: if request.auth != null;
       allow list: if request.auth != null && request.query.limit <= 1;
+      allow write: if request.auth != null && request.auth.uid == uid;
+    }
+    // Friend requests. The sender creates a pending request in the receiver's inbox; only the receiver
+    // can accept it; either side can delete it (decline, cancel, or unfriend).
+    match /inbox/{to}/from/{from} {
+      allow read: if request.auth != null && (request.auth.uid == to || request.auth.uid == from);
+      allow create: if request.auth != null && request.auth.uid == from && from != to && request.resource.data.st == 'pending';
+      allow update: if request.auth != null && request.auth.uid == to && request.resource.data.st == 'accepted';
+      allow delete: if request.auth != null && (request.auth.uid == to || request.auth.uid == from);
+    }
+    // Each player's private list of the requests they sent.
+    match /outbox/{uid}/to/{other} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+    // Streak, gold and gear. Readable only by the owner and by players with an accepted friend request, in either direction.
+    match /stats/{uid} {
+      allow read: if request.auth != null && (
+        request.auth.uid == uid
+        || (exists(/databases/$(database)/documents/inbox/$(uid)/from/$(request.auth.uid))
+            && get(/databases/$(database)/documents/inbox/$(uid)/from/$(request.auth.uid)).data.st == 'accepted')
+        || (exists(/databases/$(database)/documents/inbox/$(request.auth.uid)/from/$(uid))
+            && get(/databases/$(database)/documents/inbox/$(request.auth.uid)/from/$(uid)).data.st == 'accepted')
+      );
       allow write: if request.auth != null && request.auth.uid == uid;
     }
   }

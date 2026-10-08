@@ -17,7 +17,7 @@ Progress is stored on the device. Players can sign in (Profile or Settings > Acc
 Uses Firebase Auth and Firestore (free Spark plan). In the Firebase console: enable Email/Password and Google under Authentication > Sign-in method, add the site's domain under Authentication > Settings > Authorized domains, create a Firestore database, and paste `firestore.rules` into Firestore > Rules.
 
 ## Friends
-Signed-in players get a friend code (Profile > Friends). Adding someone's code shows their name, picture, rank, level and streak on a leaderboard.
+Signed-in players get a friend code (Profile > Friends) and send friend requests with it. Once a request is accepted, both players see each other's streak, gold and equipped gear, plus a streak leaderboard.
 
 ## Single-file build
 `node scripts/inline.mjs` -> `dist/barracks.html`.

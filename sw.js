@@ -1,5 +1,5 @@
 // Bump VERSION whenever you release, so installed copies pick up the new files.
-const VERSION = "tg-2026-10-08f";
+const VERSION = "tg-2026-10-08g";
 const SHELL = ["./", "index.html", "css/style.css", "manifest.webmanifest",
   "icons/icon-192.png", "icons/icon-512.png", "icons/icon-180.png"];
 
