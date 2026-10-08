@@ -1,4 +1,7 @@
 const TM={walk:[5,10,15,20,25,30,35,40,45,50],run:[3,6,9,12,15,18,21,24,27,30]};
+const skipCost=t=>TM.walk[t]*100;
+function skipTo(z){const c=skipCost(z);daily();if(steps()<c){toast("You need "+(c-steps()).toLocaleString()+" more Steps. Earn them from Cardio workouts.");return}S.steps=steps()-c;S.at=z;S.trip=null;save();render();toast("Spent "+c.toLocaleString()+" Steps. Arrived at "+ZN[z][0]+".")}
+const skipBtn=(t,l)=>`<button class="btn sm ghost" style="display:inline-flex;align-items:center;gap:5px" ${steps()>=skipCost(t)?"":"disabled"} onclick="skipTo(${t})" aria-label="Skip travel for ${skipCost(t)} Steps">${BOOT(16)}${l} ${skipCost(t).toLocaleString()}</button>`;
 const zoneOpen=t=>Math.floor(profLv()/3)>=t-1;
 const swI=s=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="var(--acc)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none" aria-hidden="true"><path d="M4 4l9 9M4 4h5M4 4v5M20 4l-9 9M20 4h-5M20 4v5M7 14l3 3M17 14l-3 3M6 18l-2 2M18 18l2 2"/></svg>`;
 function tripLeft(){const tr=S.trip;if(!tr)return null;const need=TM[tr.k][tr.z],el=(Date.now()-tr.t0)/6e4;return{need,el}}
@@ -10,13 +13,13 @@ function mapView(){
     <div class="bar" style="height:10px"><i id="tb" style="width:${Math.min(100,el/need*100)}%;background:var(--acc)"></i></div>
     <label class="mu" style="display:block;margin:10px 0 4px;font-size:13px" for="tm">Already done it? Enter the minutes you covered</label>
     <input id="tm" type="number" inputmode="numeric" min="0" placeholder="Minutes" aria-label="Minutes">
-    <div class="row" style="gap:8px;margin-top:10px"><button class="btn" onclick="arrive()">Arrive</button><button class="btn ghost" onclick="cancelTrip()">Cancel</button></div></div>`})():"";
-  return `<h1>Map</h1><p class="mu">Walk or run to a zone and stay there. Fight what lives there, and travel again to move on.</p>
+    <div class="row" style="gap:8px;margin-top:10px"><button class="btn" onclick="arrive()">Arrive</button><button class="btn ghost" onclick="cancelTrip()">Cancel</button></div><div class="gap">${skipBtn(tr.z,"Skip the trip for")}</div></div>`})():"";
+  return `<h1>Map</h1><p class="mu">Walk or run to a zone and stay there. Fight what lives there, and travel again to move on. Steps from Cardio workouts can skip a trip.</p>
   <div class="card"><div class="row">${swI(30)}<div class="sp"><div class="mu" style="margin:0;font-size:13px">Current location</div><b style="font:700 20px Cinzel,serif">${at!=null?ZN[at][0]:"Nowhere yet"}</b></div></div>
   ${at!=null?`<div class="row" style="margin-top:12px"><div class="sp mu" style="margin:0;font-size:13px">${ZN[at][1]} · ${wn[at]||0} victories<br>You stay here until you travel elsewhere.</div><button class="btn sm" id="bb" style="width:auto" ${bOff()?"disabled":""} onclick="startBattle()">${bTxt("Battle")}</button></div>`:`<p class="mu" style="margin:10px 0 0;font-size:14px">Walk or run to a zone below. You'll stay there and can fight as often as you like.</p>`}</div>
   ${hpCard()}${tc}<h2>Zones</h2>
   ${ZN.map((z,t)=>{const open=zoneOpen(t),here=at==t;return `<div class="card"><div class="row" style="gap:12px;align-items:center">${medal(t*3,60,open)}<div class="sp"><b style="font:700 16px Cinzel,serif;color:${COL[t]}">${z[0]}</b><div class="mu" style="margin:0;font-size:13px">Recommended: ${RANKS[t]} · ${z[1]}</div><div class="mu" style="margin:0;font-size:13px">Walk ${TM.walk[t]} min · Run ${TM.run[t]} min</div></div></div>
-  ${here?'<div class="mu" style="margin:8px 0 0;font-weight:600;color:var(--acc)">You are here</div>':open?`<div class="row" style="gap:8px;margin-top:10px"><button class="btn sm" onclick="trip(${t},'walk')">Walk there</button><button class="btn sm ghost" onclick="trip(${t},'run')">Run there</button></div>`:`<div class="mu" style="margin:8px 0 0;font-size:13px">Locked. Reach ${RANKS[t-1]} rank to travel here.</div>`}</div>`}).join("")}`;
+  ${here?'<div class="mu" style="margin:8px 0 0;font-weight:600;color:var(--acc)">You are here</div>':open?`<div class="row" style="gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn sm" onclick="trip(${t},'walk')">Walk there</button><button class="btn sm ghost" onclick="trip(${t},'run')">Run there</button>${skipBtn(t,"Skip")}</div>`:`<div class="mu" style="margin:8px 0 0;font-size:13px">Locked. Reach ${RANKS[t-1]} rank to travel here.</div>`}</div>`}).join("")}`;
 }
 function trip(z,k){S.trip={z,k,t0:Date.now()};save();render()}
 function cancelTrip(){S.trip=null;save();render()}

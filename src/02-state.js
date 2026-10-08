@@ -6,7 +6,7 @@ if(S.gold==null)S.gold=S.log.length*50;
 if(!S.inv)S.inv=[];
 if(!S.eq)S.eq={};
 if(S.theme)document.documentElement.dataset.theme=S.theme;
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}if(typeof drawHud=="function")drawHud()};
 if(!S.since){S.since=(S.log[0]&&S.log[0].d)||Date.now();save()}
 if(!S.v2){const OP={w1:100,w2:250,w3:400,w4:600,w5:900,w6:1400,w7:3000,a1:100,a2:300,a3:500,a4:800,a5:1600,a6:3200};let r=0;(S.inv||[]).forEach(id=>{r+=OP[id]||0});S.gold=(S.gold||0)+r;S.inv=[];S.eq={};S.v2=1;if(r)S.refund=r;save()}
 if(!S.v3){const PP=[50,150,350,700,1200,2000,3200,5000,7500,11000];let r=0;S.inv=(S.inv||[]).map(id=>{if(id.startsWith("back")){r+=Math.round(PP[+id.slice(4)]*1.1/10)*10;return null}return id.startsWith("feet")?"boots"+id.slice(4):id}).filter(Boolean);const e=S.eq||{};if(e.feet){e.boots="boots"+e.feet.slice(4);delete e.feet}delete e.back;S.eq=e;S.gold=(S.gold||0)+r;S.v3=1;if(r)S.refund3=r;save()}

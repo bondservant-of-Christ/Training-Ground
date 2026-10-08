@@ -5,5 +5,7 @@
 - Exercise types: "r" reps, "w" weight x reps (ranked vs bodyweight), "m" minutes (timed cardio; 1 row per workout, every 5 min counts as a set for rewards, max 6; counts toward Endurance). New exercises need a PAT entry in 07-exercise-info.js.
 - Rewards: XP 7*sets+25*rankups; gold 6*sets+25*rankups. Battle cooldown 300s, HP persists until healed.
 - Enemy art: jagged full-body silhouettes (ENM in 10-enemies.js). No cartoon/realistic styles.
+- HUD (#hud, built by drawHud() in 03-rank.js, refreshed on every save()): level + XP bar, streak, Steps, Gold. #info sheets open below it.
+- Streak: S.streak/S.day, +1 per calendar day the app is opened (daily()). Steps: S.steps/S.wk, earned only from Cardio group exercises (100 per timed minute, 2 per rep), reset every Monday, spent on the Map to skip travel (walk minutes x 100).
 - Run/walk travel is honor-system; no GPS verification.
 - Bump VERSION in sw.js each release.
