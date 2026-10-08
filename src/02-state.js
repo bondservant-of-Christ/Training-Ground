@@ -12,5 +12,5 @@ if(!S.v2){const OP={w1:100,w2:250,w3:400,w4:600,w5:900,w6:1400,w7:3000,a1:100,a2
 if(!S.v3){const PP=[50,150,350,700,1200,2000,3200,5000,7500,11000];let r=0;S.inv=(S.inv||[]).map(id=>{if(id.startsWith("back")){r+=Math.round(PP[+id.slice(4)]*1.1/10)*10;return null}return id.startsWith("feet")?"boots"+id.slice(4):id}).filter(Boolean);const e=S.eq||{};if(e.feet){e.boots="boots"+e.feet.slice(4);delete e.feet}delete e.back;S.eq=e;S.gold=(S.gold||0)+r;S.v3=1;if(r)S.refund3=r;save()}
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-let tab="barracks",sel=new Set(),gen=null,run=null,sure=false,mode="h",mm="all",build=null,prev=null,bg="Chest",bm="all",editing=false;
+let tab="barracks",sel=new Set(),gen=null,run=null,sure=false,mode="h",mm="all",build=null,prev=null,bg="Chest",bm="all",editing=false,bq="",aq="";
 

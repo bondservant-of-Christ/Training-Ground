@@ -22,6 +22,7 @@ h2{font:600 17px Cinzel,Georgia,serif;margin:18px 0 8px}
 .sm{width:auto;padding:8px 12px;font-size:14px}
 .gap{display:flex;gap:8px;margin-top:10px}
 input,textarea{font:inherit;resize:vertical;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;width:100%}
+.srch{margin-bottom:12px}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
 .stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 8px;text-align:center}
 .stat b{display:block;font:700 24px Cinzel,serif}.stat span{color:var(--mute);font-size:13px}

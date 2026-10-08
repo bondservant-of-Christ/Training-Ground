@@ -11,11 +11,11 @@ function mk(){
   gen=gs.flatMap(g=>pool(g).sort(()=>Math.random()-.5).slice(0,per));render();
 }
 function sv(){const n=$("#rn").value.trim();if(!n){$("#rn").focus();return}S.routines.push({name:n,ex:[...gen]});save();render();toast("Routine saved")}
-function begin(ex,name){run={name,t0:Date.now(),items:ex.map(e=>({ex:e,rows:[{w:"",r:""},{w:"",r:""},{w:"",r:""}]}))};render();$("#m").scrollTop=0}
+function begin(ex,name){run={name,t0:Date.now(),items:ex.map(e=>({ex:e,rows:EX[e].t=="m"?[{w:"",r:""}]:[{w:"",r:""},{w:"",r:""},{w:"",r:""}]}))};render();$("#m").scrollTop=0}
 function fin(){
   const ups=[];let sets=0;const L0=lvl()[0];
   run.items.forEach(it=>{const e=EX[it.ex],b=rk(it.ex);
-    it.rows.forEach(r=>{const w=+r.w,n=+r.r;if(!r.done||!(n>0)||(e.t=="w"&&!(w>0)))return;sets++;const v=e.t=="r"?n:w*(1+n/30);S.pr=S.pr||{};const pp=S.pr[it.ex],pv=pp?(e.t=="r"?pp.r:pp.w*(1+pp.r/30)):0;if(v>pv)S.pr[it.ex]={w:e.t=="w"?w:0,r:n};if(v>(S.best[it.ex]||0))S.best[it.ex]=Math.round(v*10)/10});
+    it.rows.forEach(r=>{const w=+r.w,n=+r.r;if(!r.done||!(n>0)||(e.t=="w"&&!(w>0)))return;sets+=e.t=="m"?Math.min(6,Math.max(1,Math.round(n/5))):1;const v=e.t!="w"?n:w*(1+n/30);S.pr=S.pr||{};const pp=S.pr[it.ex],pv=pp?(e.t!="w"?pp.r:pp.w*(1+pp.r/30)):0;if(v>pv)S.pr[it.ex]={w:e.t=="w"?w:0,r:n};if(v>(S.best[it.ex]||0))S.best[it.ex]=Math.round(v*10)/10});
     if(rk(it.ex)>b)ups.push(it.ex+" "+rname(rk(it.ex)));});
   const gain=7*sets+25*ups.length,gold=6*sets+25*ups.length;S.xp+=gain;S.gold+=gold;const hurt=hpNow()<hpMax();S.hp=null;const L1=lvl()[0];
   S.log.push({d:Date.now(),name:run.name,dur:Date.now()-run.t0});save();run=null;go("barracks");

@@ -4,7 +4,7 @@ const item=id=>ITEMS.find(x=>x.id==id);
 const gtxt=id=>{const g=GEAR[id],o=[];if(g.atk)o.push("+"+g.atk+" Attack");if(g.def)o.push("+"+g.def+" Defense");if(g.hp)o.push("+"+g.hp+" Health");return o.join(" · ")};
 const tile=(x,z)=>`<div class="ic" style="width:${z}px;height:${z}px;margin:0;flex:none;background:${mixc(x.c,1,.6)};--tn:${mixc(x.c,1,.6)};color:${mixc(x.c,0,.8)}"><svg viewBox="0 0 48 48" fill="currentColor" style="width:${Math.round(z*.75)}px;height:${Math.round(z*.75)}px" aria-hidden="true">${ICO[x.i]}</svg></div>`;
 function calc(){
-  const lg=logged(),W=lg.filter(e=>EX[e].t=="w"),R=lg.filter(e=>EX[e].t=="r"),sm=a=>a.reduce((n,e)=>n+rk(e)+1,0),L=lvl()[0],g={atk:0,def:0,hp:0};
+  const lg=logged(),W=lg.filter(e=>EX[e].t=="w"),R=lg.filter(e=>EX[e].t!="w"),sm=a=>a.reduce((n,e)=>n+rk(e)+1,0),L=lvl()[0],g={atk:0,def:0,hp:0};
   Object.values(S.eq||{}).forEach(id=>{const q=GEAR[id];if(q){g.atk+=q.atk||0;g.def+=q.def||0;g.hp+=q.hp||0}});
   const str=5+Math.round(sm(W)/2),end=5+Math.round(sm(R)/2),vit=5+L+Math.floor(S.log.length/5);
   return{L,str,end,vit,g,atk:str*2+g.atk,def:end+g.def,hp:50+vit*10+g.hp};

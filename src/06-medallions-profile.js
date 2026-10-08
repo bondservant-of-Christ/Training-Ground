@@ -1,19 +1,27 @@
 function medallions(){
   const lg=logged().sort((a,b)=>rk(b)-rk(a)||a.localeCompare(b));
   return `<div class="row"><h1 class="sp">Medallions</h1><button class="btn ghost" aria-label="Medallion guide" onclick="guide()" style="width:38px;height:38px;padding:0;border-radius:50%;flex:none">?</button></div>
-  ${lg.length?`<p class="mu">${lg.length} discovered. The boxes on each medallion show your personal record: weight on the left, reps on the right. Bodyweight exercises show reps only. Tap a card for exercise info.</p><div class="mg">${lg.map(ex=>{const q=pinfo(ex),c=COL[q.i/3|0];return `<button class="mc" style="border:3px solid transparent;background:linear-gradient(var(--panel),var(--panel)) padding-box,${metal(c)} border-box;box-shadow:0 2px 10px ${c}40" onclick="info('${ex}')">${medal(q.i,168)}<b class="ti">${ex}</b><div class="pr">${pbox(ex)}</div><div class="pb"><div class="bar"><i style="width:${q.pct}%;background:${c}"></i></div><div style="color:${c};font-weight:600;font-size:13px;margin-top:6px">${rname(q.i)}</div><div class="mu" style="margin:0;font-size:12px">${q.goal}</div></div></button>`}).join("")}</div>`:`<p class="mu" style="margin-top:8px">You have not discovered any workouts.</p>`}
+  ${lg.length?`<div class="mg" style="margin-top:12px">${lg.map(ex=>{const q=pinfo(ex),c=COL[q.i/3|0];return `<button class="mc" style="border:3px solid transparent;background:linear-gradient(var(--panel),var(--panel)) padding-box,${metal(c)} border-box;box-shadow:0 2px 10px ${c}40" onclick="info('${ex}')">${medal(q.i,168)}<b class="ti">${ex}</b><div class="pr">${pbox(ex)}</div><div class="pb"><div class="bar"><i style="width:${q.pct}%;background:${c}"></i></div><div style="color:${c};font-weight:600;font-size:13px;margin-top:6px">${rname(q.i)}</div><div class="mu" style="margin:0;font-size:12px">${q.goal}</div></div></button>`}).join("")}</div>`:`<p class="mu" style="margin-top:8px">You have not discovered any workouts.</p>`}
   <button class="btn ghost" style="margin-top:16px" onclick="allw()">View all Workouts</button>`;
 }
 function allw(keep){
+  if(!keep)aq="";
   $("#info").innerHTML=`<div class="sheet"><div class="row"><h1 class="sp" style="margin:0;font-size:23px">All workouts</h1><button class="btn sm ghost" id="ic" onclick="closeInfo()">Close</button></div>
-  <p class="mu" style="margin-top:4px">${logged().length} of ${Object.keys(EX).length} discovered. Ranks compare your best lift to your bodyweight (${S.bw} lb).</p>
-  <div class="chips">${[["all","All"],["h","Home"],["d","Dumbbells"],["g","Gym"]].map(([k,l])=>`<button class="chip ${mm==k?"on":""}" onclick="mm='${k}';allw(1)">${l}</button>`).join("")}</div>
-  ${Object.entries(G).map(([g,l])=>`<h2>${g}</h2>`+l.filter(e=>mm=="all"||e[3]==mm).map(e=>{const ex=e[0],q=pinfo(ex),b=S.best[ex],c=COL[q.i/3|0];return `<div class="card row">${medal(q.i,76,!!b)}<div class="sp"><div class="row"><b class="sp">${ex}</b><span style="font:600 14px Cinzel,serif;color:${c}">${rname(q.i)}</span></div><div class="mu" style="margin:0;font-size:13px">${b?"PR "+q.pr:"Not discovered yet"} · ${q.goal}</div><div class="bar"><i style="width:${q.pct}%;background:${c}"></i></div></div></div>`}).join("")).join("")}</div>`;
+  <p class="mu" style="margin-top:4px">${logged().length} of ${Object.keys(EX).length} discovered. Lifts are ranked against your bodyweight (${S.bw} lb), bodyweight moves by reps, and timed cardio by minutes.</p>
+  ${sbar(aq,"saq","Search workouts")}
+  <div class="chips">${EQS.map(([k,l])=>`<button class="chip ${mm==k?"on":""}" onclick="mm='${k}';allw(1)">${l}</button>`).join("")}</div>
+  <div id="al">${alist()}</div></div>`;
   $("#info").classList.add("on");if(!keep){$("#info").scrollTop=0;$("#ic").focus()}
+}
+function saq(v){aq=v;$("#al").innerHTML=alist()}
+function alist(){
+  const s=aq.trim();
+  return Object.entries(G).map(([g,l])=>{const f=l.filter(e=>(mm=="all"||e[3]==mm)&&(!s||hit(e[0],s)));return f.length?`<h2>${g}</h2>`+f.map(e=>{const ex=e[0],q=pinfo(ex),b=S.best[ex],c=COL[q.i/3|0];return `<div class="card row">${medal(q.i,76,!!b)}<div class="sp"><div class="row"><b class="sp">${ex}</b><span style="font:600 14px Cinzel,serif;color:${c}">${rname(q.i)}</span></div><div class="mu" style="margin:0;font-size:13px">${b?"PR "+q.pr:"Not discovered yet"} · ${q.goal}</div><div class="bar"><i style="width:${q.pct}%;background:${c}"></i></div></div></div>`}).join(""):""}).join("")||`<p class="mu">No workouts match${s?" “"+esc(s)+"”":""}.</p>`;
 }
 function guide(){
   $("#info").innerHTML=`<div class="sheet"><div class="row"><h1 class="sp" style="margin:0;font-size:23px">Medallion guide</h1><button class="btn sm ghost" id="ic" onclick="closeInfo()">Close</button></div>
   <p class="mu" style="margin-top:4px">Ten ranks from lowest to highest, each with its own mythical creature. The shield sharpens and the wings grow as you rise. Each rank has three tiers, III, II, and I, with III the lowest.</p>
+  <div class="card"><h2>Reading your medallions</h2><p>The boxes on each medallion show your personal record: weight on the left, reps on the right. Bodyweight exercises show reps only, and timed cardio shows minutes. Tap a card for exercise info.</p></div>
   ${RANKS.map((r,k)=>`<div class="card"><b style="font:600 17px Cinzel,serif;color:${COL[k]}">${r}</b><span class="mu" style="margin:0 0 0 8px;font-size:13px">${CRE[k]}</span><div style="display:flex;justify-content:space-around;margin-top:4px">${[0,1,2].map(t=>medal(k*3+t,118)).join("")}</div></div>`).join("")}</div>`;
   $("#info").classList.add("on");$("#info").scrollTop=0;$("#ic").focus();
 }
