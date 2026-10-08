@@ -5,8 +5,19 @@ const skipBtn=(t,l)=>`<button class="btn sm ghost" style="display:inline-flex;al
 const zoneOpen=t=>Math.floor(profLv()/3)>=t-1;
 const swI=s=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="var(--acc)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none" aria-hidden="true"><path d="M4 4l9 9M4 4h5M4 4v5M20 4l-9 9M20 4h-5M20 4v5M7 14l3 3M17 14l-3 3M6 18l-2 2M18 18l2 2"/></svg>`;
 function tripLeft(){const tr=S.trip;if(!tr)return null;const need=TM[tr.k][tr.z],el=(Date.now()-tr.t0)/6e4;return{need,el}}
+let msec=null;
+const czTxt=()=>{const at=S.at,tr=S.trip;return tr?(tr.k=="run"?"Running":"Walking")+" to "+ZN[tr.z][0]:at==null?"Travel to your first zone":hpNow()<=0?"Too wounded to fight":cdLeft()>0?"Battle ready in "+cdTxt(cdLeft()):"Battle ready"};
+setInterval(()=>{const el=$("#cz");if(el)el.textContent=czTxt()},500);
+function mapSec(s){msec=s;render();$("#m").scrollTop=0}
+// Map tab: a home screen (current location + sections) and the Combat Zone section (travel, zones, battles).
 function mapView(){
   const at=S.at,tr=S.trip,wn=S.wins||{};
+  if(msec!="combat"){
+    const st=czTxt();
+    return `<h1>Map</h1>
+  <div class="row" style="gap:8px;margin:2px 0 16px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--acc)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none" aria-hidden="true"><path d="M12 21s7-6.2 7-11.5a7 7 0 0 0-14 0C5 14.800 12 21 12 21z"/><circle cx="12" cy="9.500" r="2.500"/></svg><div class="sp"><div class="mu" style="margin:0;font-size:13px">Current location</div><b style="font:700 19px Cinzel,serif">${at!=null?ZN[at][0]:"Nowhere yet"}</b></div></div>
+  <button class="card row" style="width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer" onclick="mapSec('combat')" aria-label="Open Combat Zone">${swI(34)}<div class="sp"><b style="font:700 18px Cinzel,serif">Combat Zone</b><div class="mu" style="margin:0;font-size:13px">Travel between zones and battle what lives there.</div><div style="font-size:13px;font-weight:600;color:var(--acc);margin-top:2px" id="cz">${st}</div></div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--mute)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>`;
+  }
   const fmt=m=>Math.floor(m)+":"+String(Math.floor(m%1*60)).padStart(2,"0");
   const tc=tr?(()=>{const{need,el}=tripLeft(),z=ZN[tr.z];return `<div class="card"><b class="sp" style="font:700 17px Cinzel,serif">${tr.k=="run"?"Running":"Walking"} to ${z[0]}</b>
     <div class="row" style="margin-top:6px"><span class="mu" style="margin:0" id="tt">${fmt(Math.min(el,need))} / ${need}:00</span></div>
@@ -14,7 +25,7 @@ function mapView(){
     <label class="mu" style="display:block;margin:10px 0 4px;font-size:13px" for="tm">Already done it? Enter the minutes you covered</label>
     <input id="tm" type="number" inputmode="numeric" min="0" placeholder="Minutes" aria-label="Minutes">
     <div class="row" style="gap:8px;margin-top:10px"><button class="btn" onclick="arrive()">Arrive</button><button class="btn ghost" onclick="cancelTrip()">Cancel</button></div><div class="gap">${skipBtn(tr.z,"Skip the trip for")}</div></div>`})():"";
-  return `<h1>Map</h1><p class="mu">Walk or run to a zone and stay there. Fight what lives there, and travel again to move on. Steps from Cardio workouts can skip a trip.</p>
+  return `<div class="row" style="margin-bottom:4px"><h1 class="sp" style="margin:0">Combat Zone</h1><button class="btn sm ghost" onclick="mapSec(null)">Back to Map</button></div><p class="mu">Walk or run to a zone and stay there. Fight what lives there, and travel again to move on. Steps from Cardio workouts can skip a trip.</p>
   <div class="card"><div class="row">${swI(30)}<div class="sp"><div class="mu" style="margin:0;font-size:13px">Current location</div><b style="font:700 20px Cinzel,serif">${at!=null?ZN[at][0]:"Nowhere yet"}</b></div></div>
   ${at!=null?`<div class="row" style="margin-top:12px"><div class="sp mu" style="margin:0;font-size:13px">${ZN[at][1]} · ${wn[at]||0} victories<br>You stay here until you travel elsewhere.</div><button class="btn sm" id="bb" style="width:auto" ${bOff()?"disabled":""} onclick="startBattle()">${bTxt("Battle")}</button></div>`:`<p class="mu" style="margin:10px 0 0;font-size:14px">Walk or run to a zone below. You'll stay there and can fight as often as you like.</p>`}</div>
   ${hpCard()}${tc}<h2>Zones</h2>

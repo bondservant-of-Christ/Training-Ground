@@ -3,7 +3,7 @@ function render(){
   $("#m").innerHTML={barracks,training,map:mapView,medallions,profile}[tab]();
   $("#n").innerHTML=TABS.map(([id,l,p])=>`<button ${tab==id?'aria-current="page"':""} onclick="go('${id}')"><svg viewBox="0 0 24 24">${p}</svg>${l}</button>`).join("");
 }
-function go(t){tab=t;sure=false;editing=false;render();$("#m").scrollTop=0}
+function go(t){tab=t;sure=false;editing=false;msec=null;render();$("#m").scrollTop=0}
 function toast(s){const t=$("#t");t.textContent=s;t.classList.add("on");setTimeout(()=>t.classList.remove("on"),3200)}
 function tg(g){sel.has(g)?sel.delete(g):sel.add(g);render()}
 function mk(){
@@ -21,13 +21,13 @@ function fin(){
   S.log.push({d:Date.now(),name:run.name,dur:Date.now()-run.t0});save();run=null;go("barracks");
   toast("+"+gain+" XP · +"+gold+" Gold"+(stp?" · +"+stp.toLocaleString()+" Steps":"")+(L1>L0?" · Level "+L1+"!":"")+(hurt?" · Fully healed":"")+(ups.length?" · Rank up: "+ups.join(", "):""));
 }
-function rs(){if(!sure){sure=true;settings();return}S={name:"Recruit",bw:180,routines:[],best:{},log:[],xp:0,rest:60,gold:0,inv:[],eq:{},v2:1,v3:1,pot:{},bf:{},since:Date.now()};daily();save();delete document.documentElement.dataset.theme;sure=false;gen=null;closeInfo();render()}
+function rs(){if(!sure){sure=true;settings();return}const ac=S.uid?{uid:S.uid,rv:S.rv,ms:S.ms}:{};S=Object.assign({name:"Recruit",bw:180,routines:[],best:{},log:[],xp:0,rest:60,gold:0,inv:[],eq:{},v2:1,v3:1,pot:{},bf:{},since:Date.now()},ac);daily();save();delete document.documentElement.dataset.theme;sure=false;gen=null;closeInfo();render()}
 function exportSave(){const b=new Blob([JSON.stringify(S)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="barracks-save-"+new Date().toISOString().slice(0,10)+".json";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);toast("Save exported")}
-function importSave(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result);if(!o||typeof o!="object"||!Array.isArray(o.log)||typeof o.best!="object"||typeof o.xp!="number")throw 0;localStorage.setItem(KEY,JSON.stringify(o));location.reload()}catch(e){toast("That file is not a Barracks save.")}};r.readAsText(f)}
+function importSave(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result);if(!o||typeof o!="object"||!Array.isArray(o.log)||typeof o.best!="object"||typeof o.xp!="number")throw 0;o.mt=Date.now();localStorage.setItem(KEY,JSON.stringify(o));location.reload()}catch(e){toast("That file is not a Barracks save.")}};r.readAsText(f)}
 const D0=daily();
 render();drawHud();
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&daily())render()});
 if(D0&&S.lost){toast("A new week has begun. Your "+S.lost.toLocaleString()+" unused Steps expired.")}else if(D0&&D0.up){toast(S.streak+"-day streak! Keep it going.")}
-if(S.lost){delete S.lost;save()}
-if(S.refund3){toast("Armor slots changed. Your old Cloak was refunded as "+S.refund3.toLocaleString()+" Gold.");delete S.refund3;save()}else if(S.refund){toast("Store updated. Your old gear was refunded as "+S.refund.toLocaleString()+" Gold.");delete S.refund;save()}
+if(S.lost){delete S.lost;save(1)}
+if(S.refund3){toast("Armor slots changed. Your old Cloak was refunded as "+S.refund3.toLocaleString()+" Gold.");delete S.refund3;save(1)}else if(S.refund){toast("Store updated. Your old gear was refunded as "+S.refund.toLocaleString()+" Gold.");delete S.refund;save(1)}
 

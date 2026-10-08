@@ -3,7 +3,7 @@ const ago=d=>new Date(d).toLocaleDateString(undefined,{month:"short",day:"numeri
 function barracks(){
   const wk=S.log.filter(l=>Date.now()-l.d<6048e5).length,md=logged().length;
   return `<h1>Barracks</h1><p class="mu">Welcome back, ${esc(S.name)}.</p>
-  ${hpCard()}
+  ${acctCard(1)}${hpCard()}
   <div class="stats"><div class="stat"><b>${S.log.length}</b><span>Workouts</span></div><div class="stat"><b>${wk}</b><span>This week</span></div><div class="stat"><b>${md}</b><span>Medallions</span></div></div>
   <button class="btn" onclick="go('training')">Start training</button>
   <div class="card row" style="margin-top:12px">${coin(28)}<div class="sp"><b style="font:700 22px Cinzel,serif">${S.gold.toLocaleString()}</b><div class="mu" style="margin:0;font-size:13px">Gold${S.inv.length?" · "+S.inv.length+" item"+(S.inv.length==1?"":"s")+" owned":""}</div></div><button class="btn sm" onclick="store()">Store</button></div>

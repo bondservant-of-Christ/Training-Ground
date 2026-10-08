@@ -12,7 +12,7 @@ function daily(){
   let ch=false,up=false;
   if(S.day!=today){up=S.day==yest;S.streak=up?(S.streak||0)+1:1;S.day=today;S.bestStreak=Math.max(S.bestStreak||0,S.streak);ch=true}
   if(S.wk!=wk){S.lost=S.wk?S.steps||0:0;S.steps=0;S.wk=wk;ch=true}
-  if(ch)save();
+  if(ch)save(1);
   return ch?{up}:null;
 }
 const steps=()=>S.steps||0;
