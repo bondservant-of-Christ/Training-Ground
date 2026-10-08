@@ -8,4 +8,4 @@
 - HUD (#hud, built by drawHud() in 03-rank.js, refreshed on every save()): level + XP bar, streak, Steps, Gold. #info sheets open below it.
 - Streak: S.streak/S.day, +1 per calendar day the app is opened (daily()). Steps: S.steps/S.wk, earned only from Cardio group exercises (100 per timed minute, 2 per rep), reset every Monday, spent on the Map to skip travel (walk minutes x 100).
 - Run/walk travel is honor-system; no GPS verification.
-- Bump VERSION in sw.js each release.
+- Bump VERSION in sw.js each release. When a new service worker takes over, index.html reloads the page automatically (skipped mid-workout, mid-battle, or while building a routine).
