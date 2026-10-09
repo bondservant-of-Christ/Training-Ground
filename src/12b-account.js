@@ -4,7 +4,7 @@
 // Local bookkeeping in S: uid (account this save is linked to), rv (cloud rev last seen), mt (last real change), ms (mt at last sync).
 const FB_CFG={apiKey:"AIzaSyB6K22kYMUmLOOht8KGcyPdyehzmtqWMtA",authDomain:"training-grounds-933e5.firebaseapp.com",projectId:"training-grounds-933e5",storageBucket:"training-grounds-933e5.firebasestorage.app",messagingSenderId:"59523322599",appId:"1:59523322599:web:8736adf3a822443f214842"};
 const FB_SRC=n=>"https://cdn.jsdelivr.net/npm/firebase@10.12.2/firebase-"+n+"-compat.js";
-let fbP=null,AU=null,DB=null,USER=null,authReady=false,syncSt="off",syncAt=0,syncErr="",pend=false,pushT=null,busy=false,again=false,choice=null,amsg="",abusy=false;
+let fbP=null,AU=null,DB=null,USER=null,authReady=false,syncSt="off",syncAt=0,syncErr="",pend=false,pushT=null,busy=false,again=false,choice=null,amsg="",abusy=false,outSure=false;
 
 function fbLoad(){
   if(fbP)return fbP;
@@ -114,8 +114,8 @@ function account(keep){
   const body=USER?`<div class="card row" style="margin-top:12px">${CLOUD(30)}<div class="sp"><div class="mu" style="margin:0;font-size:13px">Signed in as</div><b style="overflow-wrap:anywhere">${esc(USER.email||"Your account")}</b><div class="mu" style="margin:2px 0 0;font-size:13px" id="asl">${syncLine()}</div></div></div>
   <p class="mu" style="font-size:13px">Your progress saves to your account automatically. Sign in on another phone or browser to pick up where you left off.</p>
   <button class="btn" ${syncSt=="busy"?"disabled":""} onclick="sync()">Sync now</button>
-  <button class="btn ghost" style="margin-top:8px" onclick="acctOut()">Sign out</button>
-  <p class="mu" style="font-size:13px;margin:8px 0 0">Signing out leaves a copy of your progress on this device.</p>${msg}`
+  <button class="btn ghost" style="margin-top:8px" ${abusy?"disabled":""} onclick="acctOut(${outSure?1:0})">${abusy?"Saving…":outSure?"Sign out anyway":"Sign out"}</button>
+  <p class="mu" style="font-size:13px;margin:8px 0 0">Signing out removes your progress from this device. It stays saved in your account and comes back when you sign in again.</p>${msg}`
   :`<p class="mu" style="margin-top:4px">Sign in to save your progress online and use it on any device. The progress already on this device is kept and uploaded to your account.</p>
   <button class="btn ghost" style="display:flex;align-items:center;justify-content:center;gap:10px" ${abusy?"disabled":""} onclick="acctGoogle()">${GLOGO}Continue with Google</button>
   <div class="row" style="margin:14px 0"><div class="sp" style="height:1px;background:var(--line)"></div><span class="mu" style="margin:0;font-size:13px">or use email</span><div class="sp" style="height:1px;background:var(--line)"></div></div>
@@ -147,7 +147,41 @@ function acctReset(){
   if(!e){amsg="Enter your email address above, then tap Forgot your password.";account(1);return}
   acctDo(async()=>{await AU.sendPasswordResetEmail(e);toast("Password reset email sent to "+e)});
 }
-function acctOut(){choice=null;clearTimeout(pushT);amsg="";(AU?AU.signOut():Promise.resolve()).then(()=>{account(1);toast("Signed out. Your progress is still on this device.")})}
+// Uploads anything not yet saved online. Resolves true once the account has this device's latest progress.
+const unsaved=()=>(S.mt||0)>(S.ms||0);
+async function flush(){
+  for(let i=0;i<3&&USER;i++){
+    while(busy)await new Promise(r=>setTimeout(r,100));
+    if(S.uid===USER.uid&&!unsaved())return true;
+    await sync();
+    if(syncSt=="err"||syncSt=="choose")break;
+  }
+  return !!USER&&S.uid===USER.uid&&!unsaved();
+}
+// Signing out really signs this device out: the account's progress is uploaded first, then removed from the device,
+// so a signed-out device can never push an empty or reset save over the account's online save.
+// A device save that was never linked (still on the "Choose a save" screen) is left alone.
+async function acctOut(force){
+  if(abusy)return;
+  if(!USER||!AU){choice=null;account(1);return}
+  if(run||build||(B&&!B.over)){toast("Finish what you're doing before signing out.");return}
+  const picking=!!choice;choice=null;clearTimeout(pushT);amsg="";
+  if(!picking){
+    abusy=true;account(1);
+    const ok=await flush();
+    abusy=false;
+    if(!USER){account(1);return}
+    if(!ok&&S.uid===USER.uid&&!force){outSure=true;amsg="Your latest progress isn't saved online yet. Check your connection and try again. If you sign out anyway, anything not saved online is lost.";account(1);return}
+  }
+  const mine=S.uid===USER.uid;
+  outSure=false;
+  try{await AU.signOut()}catch(e){amsg=etxt(e);account(1);return}
+  if(mine){
+    const th=S.theme;S=freshSave();if(th)S.theme=th;pend=false;persist();daily();drawHud();gen=null;B=null;
+  }
+  account(1);if(typeof render=="function")render();
+  toast(mine?"Signed out. Your progress is saved in your account.":"Signed out. Your progress is still on this device.");
+}
 
 addEventListener("online",()=>{if(USER)sync()});
 document.addEventListener("visibilitychange",()=>{if(USER&&!choice)sync()});

@@ -77,6 +77,8 @@ function startBattle(){
   B={t,en,c,e:{hp:m,m,atk:Math.round(EP.h[t]*.11+EP.d[t]*.5),def:Math.round(EP.a[t]*.15)},hp:hpNow(),mp:Math.round((20+c.L*2)*mb),mm:Math.round((20+c.L*2)*mb),log:["A "+en.n+" appears!"].concat(ap.length?[ap.join(", ")+" potion boost active."]:[]),sm:false,over:null,rw:null};
   battleOpen=true;bView();
 }
+// Mend costs 5 more MP each time it is cast in a battle, so Block + Mend can't be looped forever.
+const mendCost=()=>10+5*((B&&B.mc)||0);
 function dmgTo(raw,def){return Math.max(1,Math.round(raw-def*.5))}
 function act(a){
   if(!B||B.over)return;const e=B.e,c=B.c,L=[],hp0=B.hp,ehp0=e.hp;let blk=false,stun=false;
@@ -86,7 +88,7 @@ function act(a){
   else if(a=="block"){blk=true;B.mp=Math.min(B.mm,B.mp+6);L.push("You raise your guard.")}
   else if(a=="fire"){if(B.mp<12)return;B.mp-=12;hit(c.atk*rr(1.9,2.3),1,"Fireball",1)}
   else if(a.startsWith("pot:")){const x=ITM.find(i=>i.id==a.slice(4));if(!x||have(x.id)<1||x.k!="heal")return;S.pot[x.id]--;const h2=Math.min(c.hp-B.hp,Math.round(c.hp*x.v));B.hp+=h2;L.push("You drink "+x.n+" and recover "+h2+" HP.")}
-  else if(a=="mend"){if(B.mp<10)return;B.mp-=10;const h=Math.round(c.hp*.35);B.hp=Math.min(c.hp,B.hp+h);L.push("You mend "+h+" HP.")}
+  else if(a=="mend"){const mc=mendCost();if(B.mp<mc)return;B.mp-=mc;B.mc=(B.mc||0)+1;const h=Math.round(c.hp*.35);B.hp=Math.min(c.hp,B.hp+h);L.push("You mend "+h+" HP.")}
   B.sm=false;
   if(e.hp<=0){e.hp=0;B.over="win";const t=B.t,g=Math.round(15+t*15+rr(0,8)),x=12+t*8;S.gold+=g;S.xp+=x;S.wins=S.wins||{};S.wins[B.t]=(S.wins[B.t]||0)+1;B.rw=[g,x];L.push("Victory!");save()}
   else{
@@ -104,7 +106,7 @@ function bView(){
   const fx=B.fx;B.fx=null;
   const sub=(l,s)=>`${l}<br><small>${s}</small>`;
   const ctl=gone?`<div class="card" style="text-align:center;margin:0"><b style="font:700 20px Cinzel,serif">${win?"Victory":"Defeat"}</b><div class="mu" style="margin:4px 0 10px">${win?"+"+B.rw[0]+" Gold · +"+B.rw[1]+" XP":"You earned nothing this time. Gear up and try again."}</div><div class="row" style="gap:8px"><button class="btn" id="bf" ${bOff()?"disabled":""} onclick="startBattle()">${bTxt("Fight again")}</button><button class="btn ghost" onclick="closeInfo()">Leave</button></div></div>`
-  :B.sm===true?`<div class="bg6"><button class="btn" style="grid-column:span 3" ${B.mp>=12?"":"disabled"} onclick="act('fire')">${sub("Fireball","12 MP · ignores armor")}</button><button class="btn" style="grid-column:span 3" ${B.mp>=10?"":"disabled"} onclick="act('mend')">${sub("Mend","10 MP · heal 35%")}</button><button class="btn ghost" style="grid-column:span 6" onclick="B.sm=false;bView()">Back</button></div>`
+  :B.sm===true?`<div class="bg6"><button class="btn" style="grid-column:span 3" ${B.mp>=12?"":"disabled"} onclick="act('fire')">${sub("Fireball","12 MP · ignores armor")}</button><button class="btn" style="grid-column:span 3" ${B.mp>=mendCost()?"":"disabled"} onclick="act('mend')">${sub("Mend",mendCost()+" MP · heal 35%")}</button><button class="btn ghost" style="grid-column:span 6" onclick="B.sm=false;bView()">Back</button></div>`
   :B.sm=="items"?`<div class="bg6">${ITM.filter(i=>i.k=="heal"&&have(i.id)>0).map(x=>`<button class="btn" style="grid-column:span 6" onclick="act('pot:${x.id}')">${sub(x.n+" × "+have(x.id),x.d)}</button>`).join("")||'<p class="mu" style="grid-column:span 6;margin:0">You have no healing potions.</p>'}<button class="btn ghost" style="grid-column:span 6" onclick="B.sm=false;bView()">Back</button></div>`
   :`<div class="bg6"><button class="btn" style="grid-column:span 2" onclick="act('slash')">${sub("Slash","Reliable")}</button><button class="btn" style="grid-column:span 2" onclick="act('bash')">${sub("Bash","Heavy, may stun")}</button><button class="btn" style="grid-column:span 2" onclick="act('block')">${sub("Block","Less damage")}</button><button class="btn ghost" style="grid-column:span 3" onclick="B.sm=true;bView()">${sub("Spell","Uses MP")}</button><button class="btn ghost" style="grid-column:span 3" onclick="B.sm='items';bView()">${sub("Items","Healing potions")}</button></div>`;
   $("#info").innerHTML=`<div class="sheet bsh">
