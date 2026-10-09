@@ -61,6 +61,11 @@ const liveStreak=s=>s&&String(s.day||"")>=yKey()?Math.max(0,s.streak|0):0;
 const safeAv=s=>typeof s=="string"&&s.length<40000&&/^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(s)?s:"";
 const favatar=(p,sz)=>{p=p||{};const k=Math.min(9,Math.max(0,(p.rk|0)/3|0)),c=COL[k],av=safeAv(p.av);return `<div style="width:${sz}px;height:${sz}px;border-radius:50%;border:3px solid transparent;background:linear-gradient(var(--panel),var(--panel)) padding-box,${metal(c)} border-box;flex:none;overflow:hidden;display:flex;align-items:center;justify-content:center;font:700 ${Math.round(sz/2.4)}px Cinzel,serif">${av?`<img src="${av}" alt="" style="width:100%;height:100%;object-fit:cover">`:esc(String(p.name||"R")[0].toUpperCase())}</div>`};
 const rankLine=p=>{const rk=Math.min(29,Math.max(0,p.rk|0));return `<span style="color:${COL[rk/3|0]};font-weight:600">${p.un?"Unranked":rname(rk)}</span><span class="mu"> · Level ${Math.max(1,p.lv|0)}</span>`};
+// Box Knight: a built-in friend every signed-in player has. Lives only in the app (nothing in Firestore), can't be removed,
+// and is always "online": the streak was 132 on 9 Oct 2026 and goes up by one every day.
+const BK="boxknight",BK_P={name:"Box Knight",lv:52,rk:29,un:false};
+const bkStats=()=>{const n=new Date(),k=132+Math.max(0,Math.round((new Date(n.getFullYear(),n.getMonth(),n.getDate())-new Date(2026,9,9))/864e5)),eq={};SLOTS.forEach(([s])=>eq[s]=s+"9");return{streak:k,day:dkey(n),best:k,gold:27000,eq}};
+const frP=id=>id==BK?BK_P:frCards[id]||{},frS=id=>id==BK?bkStats():frStats[id];
 const rawName=id=>String((frCards[id]&&frCards[id].name)||"Recruit");
 
 // Loads requests (both directions), friends, their public cards, and friends' stats.
@@ -119,18 +124,18 @@ function frRemove(id,msg){if(!okId(id))return;const u=USER.uid;frView=null;frSur
 function copyCode(){const t=()=>toast("Friend code copied");try{navigator.clipboard.writeText(fcShow(S.fc)).then(t,()=>toast("Your code is "+fcShow(S.fc)))}catch(e){toast("Your code is "+fcShow(S.fc))}}
 
 function frCard(){
-  const n=frL.acc.length,r=frL.inn.length;
+  const n=frL.acc.length+(USER?1:0),r=frL.inn.length;
   return `<button class="card row" style="width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer" onclick="friendsSheet()">${PEOPLE()}<div class="sp"><b>Friends</b><div class="mu" style="margin:0;font-size:13px">${USER?(n?n+" friend"+(n==1?"":"s")+". See their streaks, gold and gear.":"Add friends to see their streaks, gold and gear."):"Sign in to add friends."}</div>${USER&&r?`<div style="font-size:13px;font-weight:600;color:var(--acc);margin-top:2px">${r} friend request${r==1?"":"s"} waiting</div>`:""}</div>${CHEV}</button>`;
 }
 function friendView(id){
-  const p=frCards[id]||{},s=frStats[id],eq=s&&s.eq&&typeof s.eq=="object"?s.eq:{};
+  const p=frP(id),s=frS(id),eq=s&&s.eq&&typeof s.eq=="object"?s.eq:{};
   const st=(v,l,ic)=>`<div class="stat"><b style="font-size:21px;display:flex;align-items:center;justify-content:center;gap:4px">${ic||""}${v}</b><span>${l}</span></div>`;
   return `<div class="sheet" id="frs"><div class="row"><h1 class="sp" style="margin:0;font-size:23px;overflow-wrap:anywhere">${esc(p.name||"Recruit")}</h1><button class="btn sm ghost" id="ic" onclick="frView=null;frSure=false;friendsSheet(1);$('#info').scrollTop=0">Back</button></div>
   <div class="card row" style="margin-top:12px;gap:14px">${favatar(p,84)}<div class="sp"><div style="font:700 17px Cinzel,serif;color:${COL[Math.min(9,Math.max(0,(p.rk|0)/3|0))]}">${p.un?"Unranked":rname(Math.min(29,Math.max(0,p.rk|0)))}</div><div style="font:700 26px/1.2 Cinzel,serif">Level ${Math.max(1,p.lv|0)}</div></div></div>
   ${s?`<div class="stats" style="margin:0 0 12px">${st(liveStreak(s),"Day streak",FLAME(20))}${st(Math.max(0,s.best|0),"Best streak")}${st(kfmt(Math.max(0,s.gold|0)),"Gold",coin(18))}</div>
   <h2>Gear</h2><div class="mg">${SLOTS.map(([k,l])=>{const gid=eq[k],x=typeof gid=="string"&&GEAR[gid]&&GEAR[gid].s==k?item(gid):null;return `<div class="card it"><div class="mu" style="margin:0 0 6px;font-weight:600">${l}</div><div style="display:flex;justify-content:center">${x?tile(x,72):'<div class="ic" style="width:72px;height:72px;margin:0;background:var(--bg);border:2px dashed var(--line)"></div>'}</div><b class="ti2" style="margin-top:6px;min-height:40px">${x?x.n:"Empty"}</b>${x?`<div class="mu" style="margin:0;font-size:12px"><span style="color:${COL[x.tier]};font-weight:600">${RANKS[x.tier]}</span> · ${gtxt(gid)}</div>`:""}</div>`}).join("")}</div>`
   :`<p class="mu">${esc(p.name||"This player")}'s streak, gold and gear will show here after they next open the app.</p>`}
-  <button class="btn ghost" style="margin-top:16px" ${frBusy?"disabled":""} onclick="if(frSure)frRemove('${id}','Friend removed.');else{frSure=true;friendsSheet(1)}">${frSure?"Tap again to remove this friend":"Remove friend"}</button></div>`;
+  ${id==BK?"":`<button class="btn ghost" style="margin-top:16px" ${frBusy?"disabled":""} onclick="if(frSure)frRemove('${id}','Friend removed.');else{frSure=true;friendsSheet(1)}">${frSure?"Tap again to remove this friend":"Remove friend"}</button>`}</div>`;
 }
 function friendsSheet(keep){
   if(!USER){
@@ -139,9 +144,9 @@ function friendsSheet(keep){
   }
   const iv=$("#fci")?$("#fci").value:"";
   if(!keep){frMsg="";frView=null;frSure=false;loadFriends()}
-  if(frView&&frL.acc.includes(frView)){$("#info").innerHTML=friendView(frView);openSheet(keep);return}
+  if(frView&&(frView==BK||frL.acc.includes(frView))){$("#info").innerHTML=friendView(frView);openSheet(keep);return}
   frView=null;
-  const uid=USER.uid,rows=[{id:uid,me:1,p:Object.assign(myCard(),{av:S.avatar&&thumbSrc===S.avatar?thumbOut:""}),s:myStats()}].concat(frL.acc.map(id=>({id,p:frCards[id]||{},s:frStats[id]})));
+  const uid=USER.uid,rows=[{id:uid,me:1,p:Object.assign(myCard(),{av:S.avatar&&thumbSrc===S.avatar?thumbOut:""}),s:myStats()}].concat([BK,...frL.acc].map(id=>({id,p:frP(id),s:frS(id)})));
   rows.sort((a,b)=>liveStreak(b.s)-liveStreak(a.s)||(b.p.lv|0)-(a.p.lv|0));
   const row=(r,i)=>{const p=r.p,s=liveStreak(r.s),tag=r.me?"div":"button",act=r.me?"":` onclick="frView='${r.id}';friendsSheet(1);$('#info').scrollTop=0" aria-label="${esc(p.name||"Recruit")}, ${s} day streak. View profile"`;
     return `<${tag} class="card row" style="width:100%;text-align:left;font:inherit;color:inherit;${r.me?"border-color:var(--acc)":"cursor:pointer"}"${act}><span class="mu" style="margin:0;width:18px;text-align:center;font-weight:600">${i+1}</span>${favatar(p,50)}<div class="sp"><b style="overflow-wrap:anywhere">${esc(p.name||"Recruit")}</b>${r.me?' <span class="mu" style="font-size:13px">(you)</span>':""}<div style="font-size:13px">${rankLine(p)}</div></div><div style="flex:none;min-width:56px"><div class="row" style="gap:3px;justify-content:flex-end">${FLAME(18)}<b style="font:700 19px Cinzel,serif">${r.s?s:"–"}</b></div><div class="row" style="gap:4px;justify-content:flex-end;margin-top:2px">${coin(13)}<span class="mu" style="margin:0;font-size:13px">${r.s?kfmt(Math.max(0,r.s.gold|0)):"–"}</span></div></div>${r.me?"":CHEV}</${tag}>`};
@@ -154,6 +159,6 @@ function friendsSheet(keep){
   ${frL.out.length?`<h2>Sent requests</h2>${frL.out.map(id=>req(id,0)).join("")}`:""}
   <h2>Streak leaderboard</h2>
   ${rows.map(row).join("")}
-  ${frL.acc.length?"":`<p class="mu">${frLoading&&!frL.ok?"Loading…":"No friends yet. Send a request with someone's code, and they'll appear here once they accept."}</p>`}</div>`;
+  ${frL.acc.length?"":`<p class="mu">${frLoading&&!frL.ok?"Loading…":"Send a request with someone's code, and they'll appear here once they accept."}</p>`}</div>`;
   openSheet(keep);
 }
