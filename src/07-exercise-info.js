@@ -58,14 +58,29 @@ const EQ={h:"Bodyweight",d:"Dumbbells",g:"Gym equipment",a:"No equipment, anywhe
 const fmt=ms=>{const t=Math.floor(ms/1e3),h=Math.floor(t/3600),m=Math.floor(t%3600/60);return(h?h+":"+String(m).padStart(2,"0"):m)+":"+String(t%60).padStart(2,"0")};
 function fig(st,l){const[h,...ps]=st.split(";"),[x,y]=h.split(",");return `<div style="flex:1;text-align:center"><svg viewBox="0 0 100 100" style="width:100%;color:var(--ink)" aria-hidden="true"><line x1="6" y1="93" x2="94" y2="93" stroke="var(--line)" stroke-width="2"/><circle cx="${x}" cy="${y}" r="6" fill="none" stroke="currentColor" stroke-width="3.5"/>${ps.filter(Boolean).map(q=>`<polyline points="${q}" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>`).join("")}</svg><div class="mu" style="margin:0;font-size:13px">${l}</div></div>`}
 function info(n,keep){
+  if(!keep)msure=null;
   const e=EX[n],p=PAT[n]||"core",d=DSC[p];
   $("#info").innerHTML=`<div class="sheet"><div class="row"><h1 class="sp" style="margin:0;font-size:23px">${n}</h1><button class="btn sm ghost" onclick="closeInfo()" id="ic">Close</button></div>
   <p class="mu" style="margin-top:4px">${e.g} · ${EQ[e.m]} · ${e.t=="r"?"Logged in reps":e.t=="m"?"Logged in minutes":"Logged in weight and reps"}</p>
   <div class="card row" style="gap:4px">${fig(PO[p][0],"Start")}${fig(PO[p][1],"Finish")}</div>
   <p class="mu" style="font-size:13px">Illustration shows the general movement pattern for this type of exercise.</p>
   <h2>How to perform</h2><p>${d[0]}</p><p class="mu" style="margin-top:8px">Tip: ${d[1]}</p>
-  <h2>Muscles worked</h2><div class="card">${Object.entries(MU[p]).sort((a,b)=>b[1]-a[1]).map(([m,v])=>`<div class="row" style="margin:7px 0"><span style="width:94px">${m}</span><div class="bar sp" style="height:10px;margin:0"><i style="width:${v}%;background:${v>=60?"var(--acc)":"var(--mute)"}"></i></div><span class="mu" style="margin:0;width:40px;text-align:right">${v}%</span></div>`).join("")}<p class="mu" style="font-size:13px;margin:8px 0 0">Approximate share of effort. Darker bars are the main movers.</p></div></div>`;
+  <h2>Muscles worked</h2><div class="card">${Object.entries(MU[p]).sort((a,b)=>b[1]-a[1]).map(([m,v])=>`<div class="row" style="margin:7px 0"><span style="width:94px">${m}</span><div class="bar sp" style="height:10px;margin:0"><i style="width:${v}%;background:${v>=60?"var(--acc)":"var(--mute)"}"></i></div><span class="mu" style="margin:0;width:40px;text-align:right">${v}%</span></div>`).join("")}<p class="mu" style="font-size:13px;margin:8px 0 0">Approximate share of effort. Darker bars are the main movers.</p></div>${medalBox(n)}</div>`;
   $("#info").classList.add("on");if(!keep){$("#info").scrollTop=0;$("#ic").focus()}
+}
+// Reset a medallion: costs MRESET Gold, clears the PR and rank for one exercise (for fixing a wrong entry). Workout history is kept.
+const MRESET=100;let msure=null;
+function medalBox(n){
+  if(!S.best[n])return"";const q=pinfo(n),c=COL[q.i/3|0],ok=S.gold>=MRESET;
+  return `<h2>Your medallion</h2><div class="card"><div class="row">${medal(q.i,64)}<div class="sp"><b style="font:700 17px Cinzel,serif;color:${c}">${rname(q.i)}</b><div class="mu" style="margin:0;font-size:13px">PR ${q.pr}</div></div></div>
+  <button class="btn ghost" style="margin-top:12px;display:flex;align-items:center;justify-content:center;gap:6px" ${ok?"":"disabled"} onclick="resetMedal('${n}')">${msure==n?"Tap again to reset for "+MRESET+" Gold":ok?"Reset medallion · "+coin(16)+" "+MRESET:"Reset medallion · need "+(MRESET-S.gold)+" more Gold"}</button>
+  <p class="mu" style="font-size:13px;margin:8px 0 0">Clears your personal record and rank for this exercise so you can earn it again, for example after logging a wrong number. Your workout history is kept.</p></div>`;
+}
+function resetMedal(n){
+  if(!S.best[n])return;
+  if(S.gold<MRESET){toast("You need "+(MRESET-S.gold)+" more Gold.");return}
+  if(msure!==n){msure=n;info(n,1);return}
+  msure=null;S.gold-=MRESET;delete S.best[n];if(S.pr)delete S.pr[n];save();render();info(n,1);toast(n+" medallion reset. −"+MRESET+" Gold.");
 }
 function closeInfo(){$("#info").classList.remove("on");sure=false;if(storeOpen||battleOpen){storeOpen=battleOpen=false;B=null;render()}}
 document.addEventListener("keydown",e=>{if(e.key=="Escape")closeInfo()});
