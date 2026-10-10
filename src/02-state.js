@@ -16,10 +16,11 @@ if(!S.v3){const PP=[50,150,350,700,1200,2000,3200,5000,7500,11000];let r=0;S.inv
 const EXREN={"Outdoor Run":"Running","Brisk Walk":"Walking"};
 function renameEx(o){let ch=false;
   ["best","pr"].forEach(k=>{const m=o[k];if(!m||typeof m!="object")return;Object.entries(EXREN).forEach(([a,b])=>{if(!(a in m))return;const x=m[a],y=m[b];if(y==null||(k=="best"?x>y:(x&&x.r)>(y&&y.r)))m[b]=x;delete m[a];ch=true})});
+  (o.log||[]).forEach(l=>{if(l&&Array.isArray(l.ex))l.ex.forEach(x=>{if(Array.isArray(x)&&EXREN[x[0]]){x[0]=EXREN[x[0]];ch=true}})});
   (o.routines||[]).forEach(r=>{if(r&&Array.isArray(r.ex))r.ex=r.ex.map(e=>{if(EXREN[e]){ch=true;return EXREN[e]}return e}).filter((e,i,l)=>l.indexOf(e)==i)});
   return ch}
 if(renameEx(S))save(1);
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-let tab="barracks",sel=new Set(),gen=null,run=null,sure=false,mode="h",mm="all",build=null,prev=null,bg="Chest",bm="all",editing=false,bq="",aq="";
+let tab="barracks",sel=new Set(),gen=null,run=null,sure=false,mode="h",mm="all",build=null,prev=null,bg="Chest",bm="all",editing=false,bq="",aq="",pq="",pg="Chest",pm="all";
 
