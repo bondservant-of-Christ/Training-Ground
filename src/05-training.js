@@ -48,7 +48,7 @@ function training(){
   ${S.log.length?'<button class="btn ghost" style="margin-top:4px" onclick="historySheet()">Workout history</button>':""}`;
 }
 const EQS=[["all","All"],["h","Home"],["d","Dumbbells"],["g","Gym"]],norm=s=>s.toLowerCase().replace(/[^a-z0-9]+/g," ").trim(),syn=w=>({deltoid:"delt",deltoids:"delt",delts:"delt",flies:"fly",flys:"fly",flyes:"fly",flye:"fly"})[w]||w;
-const hit=(n,q)=>{const a=" "+norm(n);return norm(q).split(" ").every(w=>a.includes(" "+syn(w)))};
+const hit=(n,q)=>{const a=" "+norm(n);return norm(q).split(" ").every(w=>a.includes(" "+syn(w))||(w.length>3&&w.endsWith("es")&&a.includes(" "+w.slice(0,-2)))||(w.length>3&&w.endsWith("s")&&a.includes(" "+w.slice(0,-1))))};
 const sbar=(v,fn,lbl)=>`<input type="search" class="srch" enterkeyhint="search" autocomplete="off" aria-label="${lbl}" placeholder="${lbl}" value="${esc(v)}" oninput="${fn}(this.value)">`;
 function blist(){
   const s=bq.trim(),l=(s?Object.values(G).flat().filter(e=>hit(e[0],s)):G[bg]).filter(e=>bm=="all"||e[3]==bm||e[3]=="a");
