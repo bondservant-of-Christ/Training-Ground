@@ -17,7 +17,7 @@ function allw(keep){
 function saq(v){aq=v;$("#al").innerHTML=alist()}
 function alist(){
   const s=aq.trim();
-  return Object.entries(G).map(([g,l])=>{const f=l.filter(e=>(mm=="all"||e[3]==mm)&&(!s||hit(e[0],s)));return f.length?`<h2>${g}</h2>`+f.map(e=>{const ex=e[0],q=pinfo(ex),b=S.best[ex],c=COL[q.i/3|0];return `<div class="card row">${medal(q.i,76,!!b)}<div class="sp"><div class="row"><b class="sp">${ex}</b><span style="font:600 14px Cinzel,serif;color:${c}">${rname(q.i)}</span></div><div class="mu" style="margin:0;font-size:13px">${b?"PR "+q.pr:"Not discovered yet"} · ${q.goal}</div><div class="bar"><i style="width:${q.pct}%;background:${c}"></i></div></div></div>`}).join(""):""}).join("")||`<p class="mu">No workouts match${s?" “"+esc(s)+"”":""}.</p>`;
+  return Object.entries(G).map(([g,l])=>{const f=l.filter(e=>(mm=="all"||e[3]==mm||e[3]=="a")&&(!s||hit(e[0],s)));return f.length?`<h2>${g}</h2>`+f.map(e=>{const ex=e[0],q=pinfo(ex),b=S.best[ex],c=COL[q.i/3|0];return `<div class="card row">${medal(q.i,76,!!b)}<div class="sp"><div class="row"><b class="sp">${ex}</b><span style="font:600 14px Cinzel,serif;color:${c}">${rname(q.i)}</span></div><div class="mu" style="margin:0;font-size:13px">${b?"PR "+q.pr:"Not discovered yet"} · ${q.goal}</div><div class="bar"><i style="width:${q.pct}%;background:${c}"></i></div></div></div>`}).join(""):""}).join("")||`<p class="mu">No workouts match${s?" “"+esc(s)+"”":""}.</p>`;
 }
 function guide(){
   $("#info").innerHTML=`<div class="sheet"><div class="row"><h1 class="sp" style="margin:0;font-size:23px">Medallion guide</h1><button class="btn sm ghost" id="ic" onclick="closeInfo()">Close</button></div>

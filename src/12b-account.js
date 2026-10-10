@@ -71,7 +71,7 @@ function adoptCloud(c){
   if(!o||typeof o!="object"||!Array.isArray(o.log))throw{code:"bad-save"};
   if(hasProg(S)&&!S.uid){try{localStorage.setItem(KEY+"-backup",JSON.stringify(S))}catch(e){}}
   S=Object.assign({name:"Recruit",bw:180,routines:[],best:{},log:[],xp:0,rest:60,gold:0,inv:[],eq:{},v2:1,v3:1},o);
-  S.uid=USER.uid;S.rv=c.rev;S.ms=S.mt=c.updated||o.mt||Date.now();pend=false;persist();
+  renameEx(S);S.uid=USER.uid;S.rv=c.rev;S.ms=S.mt=c.updated||o.mt||Date.now();pend=false;persist();
   if(S.theme)document.documentElement.dataset.theme=S.theme;else delete document.documentElement.dataset.theme;
   daily();drawHud();
   if(!run&&!build&&!B)render();

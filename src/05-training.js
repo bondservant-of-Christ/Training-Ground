@@ -10,7 +10,7 @@ function barracks(){
   <h2>Recent workouts</h2>${S.log.length?S.log.slice(-3).reverse().map(l=>`<div class="card row"><div class="sp">${esc(l.name)}</div><span class="mu" style="margin:0">${ago(l.d)}${l.dur?" · "+Math.max(1,Math.round(l.dur/6e4))+" min":""}</span></div>`).join(""):'<p class="mu">Nothing logged yet. Your finished workouts show up here.</p>'}`;
 }
 
-function pool(g){return G[g].filter(e=>mode=="h"?e[3]=="h":mode=="d"?e[3]=="d":e[3]!="h").map(e=>e[0])}
+function pool(g){return G[g].filter(e=>e[3]=="a"||(mode=="h"?e[3]=="h":mode=="d"?e[3]=="d":e[3]!="h")).map(e=>e[0])}
 const exRow=(e,r,sub)=>`<div class="row" style="padding:5px 0"><div class="sp">${e}${sub?`<div class="mu" style="margin:0;font-size:12px">${sub}</div>`:""}</div>${r||""}<button class="btn sm ghost" onclick="info('${e}')">Info</button></div>`;
 const chipRow=(opts,cur,fn)=>`<div class="chips">${opts.map(([k,l])=>`<button class="chip ${cur==k?"on":""}" onclick="${fn}('${k}')">${l}</button>`).join("")}</div>`;
 function training(){
@@ -31,7 +31,7 @@ const EQS=[["all","All"],["h","Home"],["d","Dumbbells"],["g","Gym"]],norm=s=>s.t
 const hit=(n,q)=>{const a=" "+norm(n);return norm(q).split(" ").every(w=>a.includes(" "+w))};
 const sbar=(v,fn,lbl)=>`<input type="search" class="srch" enterkeyhint="search" autocomplete="off" aria-label="${lbl}" placeholder="${lbl}" value="${esc(v)}" oninput="${fn}(this.value)">`;
 function blist(){
-  const s=bq.trim(),l=(s?Object.values(G).flat().filter(e=>hit(e[0],s)):G[bg]).filter(e=>bm=="all"||e[3]==bm);
+  const s=bq.trim(),l=(s?Object.values(G).flat().filter(e=>hit(e[0],s)):G[bg]).filter(e=>bm=="all"||e[3]==bm||e[3]=="a");
   return l.length?`<div class="card">${l.map(e=>exRow(e[0],build.ex.includes(e[0])?'<span class="mu" style="margin:0">Added</span>':`<button class="btn sm" onclick="build.ex.push('${e[0]}');render()">Add</button>`,s?EX[e[0]].g+" · "+EQ[e[3]]:"")).join("")}</div>`:`<p class="mu">No exercises match${s?" “"+esc(s)+"”":""}.</p>`;
 }
 function sbq(v){const was=!!bq.trim();bq=v;if(was!=!!v.trim()){const g=$("#bgc");if(g)g.hidden=!!v.trim()}$("#bl").innerHTML=blist()}

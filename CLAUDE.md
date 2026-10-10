@@ -2,7 +2,7 @@
 - Classic scripts in src/ share global scope; load order is in index.html. State `S` persists to localStorage "barracks-v1"; migrations are S.v2/S.v3.
 - Ranks: 10 ranks x 3 tiers, profLv() 0..29; zone t unlocks if floor(profLv()/3) >= t-1.
 - calc(): atk=str*2+gear, def=end+gear, hp=50+vit*10+gear. Combat: dmgTo = max(1, round(raw - def*.5)); enemy hp=a*7, atk=h*.11+d*.5.
-- Exercise types: "r" reps, "w" weight x reps (ranked vs bodyweight), "m" minutes (timed cardio; 1 row per workout, every 5 min counts as a set for rewards, max 6; counts toward Endurance). New exercises need a PAT entry in 07-exercise-info.js.
+- Exercise types: "r" reps, "w" weight x reps (ranked vs bodyweight), "m" minutes (timed cardio; 1 row per workout, every 5 min counts as a set for rewards, max 6; counts toward Endurance). New exercises need a PAT entry in 07-exercise-info.js. Equipment "a" = anywhere, shown in every mode (Running, Walking). Renaming an exercise: add it to EXREN in 02-state.js so renameEx() carries best/pr/routines over (runs at startup and in adoptCloud).
 - Rewards: XP 7*sets+25*rankups; gold 6*sets+25*rankups. Battle cooldown 300s, HP persists until healed.
 - Enemy art: jagged full-body silhouettes (ENM in 10-enemies.js). No cartoon/realistic styles.
 - HUD (#hud, built by drawHud() in 03-rank.js, refreshed on every save()): level + XP bar, streak, Steps, Gold. #info sheets open below it.
