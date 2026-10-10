@@ -37,7 +37,7 @@ async function myCode(ref){
   throw{code:"unavailable"};
 }
 const myCard=()=>({name:S.name||"Recruit",code:S.fc||"",lv:lvl()[0],rk:profLv(),un:!logged().length});
-const myStats=()=>({streak:S.streak||1,day:S.day||"",best:Math.max(S.bestStreak||0,S.streak||1),gold:S.gold|0,wk:S.log.length,eq:Object.assign({},S.eq||{})});
+const myStats=()=>({streak:S.streak||1,day:S.day||"",best:Math.max(S.bestStreak||0,S.streak||1),gold:S.gold|0,wk:S.log.length,eq:Object.assign({},S.eq||{}),bio:String(S.bio||"").slice(0,160)});
 // Publishes the public card and the friends-only stats whenever either changed. Called after every successful sync.
 async function pubProfile(){
   if(!USER||pubBusy||choice)return;pubBusy=true;const uid=USER.uid,had=!!S.fc;
@@ -132,6 +132,7 @@ function friendView(id){
   const st=(v,l,ic)=>`<div class="stat"><b style="font-size:21px;display:flex;align-items:center;justify-content:center;gap:4px">${ic||""}${v}</b><span>${l}</span></div>`;
   return `<div class="sheet" id="frs"><div class="row"><h1 class="sp" style="margin:0;font-size:23px;overflow-wrap:anywhere">${esc(p.name||"Recruit")}</h1><button class="btn sm ghost" id="ic" onclick="frView=null;frSure=false;friendsSheet(1);$('#info').scrollTop=0">Back</button></div>
   <div class="card row" style="margin-top:12px;gap:14px">${favatar(p,84)}<div class="sp"><div style="font:700 17px Cinzel,serif;color:${COL[Math.min(9,Math.max(0,(p.rk|0)/3|0))]}">${p.un?"Unranked":rname(Math.min(29,Math.max(0,p.rk|0)))}</div><div style="font:700 26px/1.2 Cinzel,serif">Level ${Math.max(1,p.lv|0)}</div></div></div>
+  ${s&&typeof s.bio=="string"&&s.bio.trim()?`<div class="card"><div class="mu" style="margin:0 0 4px;font-size:13px">Bio</div><p style="margin:0;white-space:pre-wrap;overflow-wrap:anywhere">${esc(s.bio.slice(0,160))}</p></div>`:""}
   ${s?`<div class="stats" style="margin:0 0 12px">${st(liveStreak(s),"Day streak",FLAME(20))}${st(Math.max(0,s.best|0),"Best streak")}${st(kfmt(Math.max(0,s.gold|0)),"Gold",coin(18))}</div>
   <h2>Gear</h2><div class="mg">${SLOTS.map(([k,l])=>{const gid=eq[k],x=typeof gid=="string"&&GEAR[gid]&&GEAR[gid].s==k?item(gid):null;return `<div class="card it"><div class="mu" style="margin:0 0 6px;font-weight:600">${l}</div><div style="display:flex;justify-content:center">${x?tile(x,72):'<div class="ic" style="width:72px;height:72px;margin:0;background:var(--bg);border:2px dashed var(--line)"></div>'}</div><b class="ti2" style="margin-top:6px;min-height:40px">${x?x.n:"Empty"}</b>${x?`<div class="mu" style="margin:0;font-size:12px"><span style="color:${COL[x.tier]};font-weight:600">${RANKS[x.tier]}</span> · ${gtxt(gid)}</div>`:""}</div>`}).join("")}</div>`
   :`<p class="mu">${esc(p.name||"This player")}'s streak, gold and gear will show here after they next open the app.</p>`}
