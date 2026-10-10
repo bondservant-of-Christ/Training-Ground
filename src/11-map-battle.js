@@ -22,8 +22,6 @@ function mapView(){
   const tc=tr?(()=>{const{need,el}=tripLeft(),z=ZN[tr.z];return `<div class="card"><b class="sp" style="font:700 17px Cinzel,serif">${tr.k=="run"?"Running":"Walking"} to ${z[0]}</b>
     <div class="row" style="margin-top:6px"><span class="mu" style="margin:0" id="tt">${fmt(Math.min(el,need))} / ${need}:00</span></div>
     <div class="bar" style="height:10px"><i id="tb" style="width:${Math.min(100,el/need*100)}%;background:var(--acc)"></i></div>
-    <label class="mu" style="display:block;margin:10px 0 4px;font-size:13px" for="tm">Already done it? Enter the minutes you covered</label>
-    <input id="tm" type="number" inputmode="numeric" min="0" placeholder="Minutes" aria-label="Minutes">
     <div class="row" style="gap:8px;margin-top:10px"><button class="btn" onclick="arrive()">Arrive</button><button class="btn ghost" onclick="cancelTrip()">Cancel</button></div><div class="gap">${skipBtn(tr.z,"Skip the trip for")}</div></div>`})():"";
   return `<div class="row" style="margin-bottom:4px"><h1 class="sp" style="margin:0">Combat Zone</h1><button class="btn sm ghost" onclick="mapSec(null)">Back to Map</button></div><p class="mu">Walk or run to a zone and stay there. Fight what lives there, and travel again to move on. Steps from Cardio workouts can skip a trip.</p>
   <div class="card"><div class="row">${swI(30)}<div class="sp"><div class="mu" style="margin:0;font-size:13px">Current location</div><b style="font:700 20px Cinzel,serif">${at!=null?ZN[at][0]:"Nowhere yet"}</b></div></div>
@@ -34,7 +32,7 @@ function mapView(){
 }
 function trip(z,k){S.trip={z,k,t0:Date.now()};save();render()}
 function cancelTrip(){S.trip=null;save();render()}
-function arrive(){const l=tripLeft();if(!l)return;const m=+($("#tm")&&$("#tm").value)||0,got=Math.max(l.el,m);if(got<l.need){toast("Keep going: "+Math.ceil(l.need-got)+" more minute"+(Math.ceil(l.need-got)==1?"":"s")+".");return}const z=S.trip.z;S.at=z;S.trip=null;save();render();toast("Arrived at "+ZN[z][0]+". You can battle here as often as you like.")}
+function arrive(){const l=tripLeft();if(!l)return;const got=l.el;if(got<l.need){toast("Keep going: "+Math.ceil(l.need-got)+" more minute"+(Math.ceil(l.need-got)==1?"":"s")+".");return}const z=S.trip.z;S.at=z;S.trip=null;save();render();toast("Arrived at "+ZN[z][0]+". You can battle here as often as you like.")}
 setInterval(()=>{const l=tripLeft();if(tab!="map"||!l)return;const t=$("#tt"),b=$("#tb");if(t)t.textContent=Math.floor(Math.min(l.el,l.need))+":"+String(Math.floor(Math.min(l.el,l.need)%1*60)).padStart(2,"0")+" / "+l.need+":00";if(b)b.style.width=Math.min(100,l.el/l.need*100)+"%"},1000);
 let B=null,battleOpen=false;
 const ITM=[];
