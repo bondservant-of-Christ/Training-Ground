@@ -47,8 +47,8 @@ function training(){
   <h2>Saved routines</h2>${S.routines.length?S.routines.map((r,i)=>`<div class="card"><div class="row"><div class="sp"><b>${esc(r.name)}</b><div class="mu" style="margin:0">${r.ex.length} exercises</div></div><button class="btn sm ghost" onclick="prev=S.routines[${i}];render()">Preview</button><button class="btn sm" onclick="begin(S.routines[${i}].ex,S.routines[${i}].name)">Start</button><button class="btn sm ghost" aria-label="Delete routine" onclick="S.routines.splice(${i},1);save();render()">Delete</button></div></div>`).join(""):'<p class="mu">No routines yet. Generate or create one.</p>'}
   ${S.log.length?'<button class="btn ghost" style="margin-top:4px" onclick="historySheet()">Workout history</button>':""}`;
 }
-const EQS=[["all","All"],["h","Home"],["d","Dumbbells"],["g","Gym"]],norm=s=>s.toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
-const hit=(n,q)=>{const a=" "+norm(n);return norm(q).split(" ").every(w=>a.includes(" "+w))};
+const EQS=[["all","All"],["h","Home"],["d","Dumbbells"],["g","Gym"]],norm=s=>s.toLowerCase().replace(/[^a-z0-9]+/g," ").trim(),syn=w=>({deltoid:"delt",deltoids:"delt",delts:"delt",flies:"fly",flys:"fly",flyes:"fly",flye:"fly"})[w]||w;
+const hit=(n,q)=>{const a=" "+norm(n);return norm(q).split(" ").every(w=>a.includes(" "+syn(w)))};
 const sbar=(v,fn,lbl)=>`<input type="search" class="srch" enterkeyhint="search" autocomplete="off" aria-label="${lbl}" placeholder="${lbl}" value="${esc(v)}" oninput="${fn}(this.value)">`;
 function blist(){
   const s=bq.trim(),l=(s?Object.values(G).flat().filter(e=>hit(e[0],s)):G[bg]).filter(e=>bm=="all"||e[3]==bm||e[3]=="a");
