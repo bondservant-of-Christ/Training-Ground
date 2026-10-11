@@ -117,7 +117,7 @@ function bView(){
   <div class="arena" style="--ac:${B.col||COL[B.t]}">
     <div class="en-nm" style="color:${mixc(B.col||COL[B.t],0,.25)}">${B.en.n}</div>
     <div class="en-hp" role="progressbar" aria-label="Enemy health" aria-valuenow="${e.hp}" aria-valuemin="0" aria-valuemax="${e.m}">${bar(e.hp,e.m,"#c0564f",14)}<div class="mu" style="margin:3px 0 0;font-size:12px;text-align:center">${e.hp.toLocaleString()} / ${e.m.toLocaleString()} HP</div></div>
-    <div class="en-art ${fx=="hit"?"eshake":""}" style="${win?"opacity:.25;filter:grayscale(1)":""}"><svg viewBox="0 0 120 120" aria-hidden="true">${B.en.s}</svg></div>
+    <div class="en-art ${fx=="hit"?"eshake":""}" style="${B.en.st||""}${win?"opacity:.25;filter:grayscale(1)":""}"><svg viewBox="${B.en.vb||"0 0 120 120"}" aria-hidden="true">${B.en.s}</svg></div>
     <div class="en-gr"></div>
     <div class="blog" aria-live="polite">${B.log.slice(-3).map(l=>`<div>${l}</div>`).join("")}</div>
   </div>

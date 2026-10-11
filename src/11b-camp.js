@@ -31,19 +31,40 @@ const NPCART={halvar:c=>{const h=`<path d="M60 6L53 10L49 2L50 16L42 20L36 32L35
   n=`<path d="M40 42L58 45L58 50L40 47Z"/><path d="M60 54L56 58L56 68L60 70Z"/><path d="M60 92L50 96L52 110L60 116Z"/><path d="M22 100L34 96L36 100L22 104Z"/>`,
   e=`<path d="M43 43.500L52 45L43 46.500Z"/>`,m=x=>x+`<g transform="translate(120 0) scale(-1 1)">${x}</g>`;
   return `<svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="npg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2c313b"/><stop offset="1" stop-color="#0c0d11"/></linearGradient></defs><g fill="url(#npg)">${m(h)}</g><g fill="var(--tn)">${m(n)}</g><g fill="${c}">${m(e)}</g></svg>`}};
-// Box Knight: a knight built from cardboard boxes (open-flap helm, taped seams, cardboard-tube sword). Same mirrored-silhouette build as the enemies.
-const BOXART=c=>{const m=x=>x+`<g transform="translate(120 0) scale(-1 1)">${x}</g>`,
-  body=`<path d="M60 12L43 12L43 38L60 38Z"/><path d="M43 12L31 5L34 16L43 18Z"/><path d="M60 12L60 6L50 3L47 12Z"/><path d="M60 38L54 38L54 43L60 43Z"/><path d="M60 43L37 43L35 82L60 82Z"/><path d="M37 41L19 39L17 56L35 58Z"/><path d="M20 58L32 59L30 80L19 78Z"/><path d="M16 80L32 82L31 93L15 91Z"/><path d="M60 84L40 84L39 108L57 108L57 92L60 92Z"/><path d="M58 108L35 108L33 118L58 118Z"/>`,
-  cut=`<path d="M47 21L60 21L60 27L47 27Z"/><path d="M36 62L60 62L60 63.500L36 63.500Z"/><path d="M19 47L36 49L36 50.500L19 48.500Z"/><path d="M40 96L57 96L57 97.500L40 97.500Z"/><path d="M45 12L43 18L44.500 18L46.500 12Z"/>`,
-  tape=`<path d="M57.500 43L60 43L60 82L57.500 82Z"/><path d="M57.500 12L60 12L60 19L57.500 19Z"/><path d="M35.500 70L60 70L60 73L35.500 73Z"/><path d="M50 23L57 23L57 25.500L50 25.500Z"/>`;
-  return `<defs><linearGradient id="bxg" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="120"><stop offset="0" stop-color="#8a6a45"/><stop offset="1" stop-color="#4a3622"/></linearGradient></defs><g fill="url(#bxg)">${m(body)}<path d="M93 22L96 13L99 22L99 80L93 80Z"/><path d="M86 76L106 76L106 81L86 81Z"/></g><g fill="var(--tn)">${m(cut)}</g><g fill="${c}">${m(tape)}<path d="M93 40L99 40L99 43L93 43Z"/></g>`};
+// Box Knight, after Noros's sketch: a tall figure of separate floating cardboard boxes. Cube head with a slitted visor band and a box plume,
+// neck cube, torso tapering down, shoulder/elbow/waist cubes, box arms and legs in two segments, a sword in his right hand and a framed shield on his left arm.
+// Drawn on a tall 120 x 200 canvas (BOXVB) so he stands taller than the zone enemies. Each box has a front, a darker side and a lighter top face.
+const BOXVB="0 0 120 200";
+const BOXART=c=>{
+  const F="url(#bxg)",SD="#3b2b19",TP="#b08a5c",q=(d,f)=>`<path d="${d}" fill="${f}"/>`;
+  const box=(x,y,w,h,k=3)=>q(`M${x} ${y}H${x+w}V${y+h}H${x}Z`,F)+q(`M${x+w} ${y}L${x+w+k} ${y-k*.7}V${y+h-k}L${x+w} ${y+h}Z`,SD)+q(`M${x} ${y}L${x+k} ${y-k*.7}H${x+w+k}L${x+w} ${y}Z`,TP);
+  const slits=[45.5,49.5,53.5,57.5,61.5,65.5,69.5].map(x=>`M${x} 30.500h1.600v7h-1.600Z`).join("");
+  return `<defs><linearGradient id="bxg" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="200"><stop offset="0" stop-color="#94724a"/><stop offset="1" stop-color="#5a4229"/></linearGradient></defs>`+
+  // sword (behind the hand), then the body from the feet up
+  q("M21 150L25 154L6 181L0 185L1 178Z",SD)+q("M14 152L28 160L26 163L12 155Z",TP)+
+  box(42,176,14,22)+box(65,176,14,22)+box(42,145,14,26)+box(65,145,14,26)+
+  q("M47 120H74L81 140H40Z",F)+q("M74 120L78 117.500L85 137.500L81 140Z",SD)+q("M47 120L51 117.500H78L74 120Z",TP)+
+  box(57,109,6,6,2)+
+  box(13,112,12,27)+box(12,143,13,12)+box(18,101,7,7,2)+box(13,72,12,25)+
+  box(96,74,11,24)+box(98,102,7,7,2)+
+  q("M30 66H90L78 104H42Z",F)+q("M90 66L94 63.500L82 101.500L78 104Z",SD)+q("M30 66L34 63.500H94L90 66Z",TP)+
+  q("M58.500 66h3v38h-3Z",c)+
+  box(23,62,7,7,2)+box(90,62,7,7,2)+box(56,54,8,7,2)+
+  // shield on his left arm (viewer's right): panel, inner frame, box emblem with a squiggle over it
+  q("M93 116L118 105V146L96 160Z",F)+q("M93 116L96 160L94 161L91 117Z",SD)+
+  `<path d="M98 120L114 113V143L100 152Z" fill="none" stroke="var(--tn)" stroke-width="1.400"/>`+
+  q("M103 133L108 131V138L103 140Z",c)+q("M108 131L111 131.500V138L108 138Z",TP)+`<path d="M102 126l2-2 2 2 2-3 2 2 2-2" fill="none" stroke="${c}" stroke-width="1.200"/>`+
+  // head: cube, visor band with slits, plume box on top
+  box(42,20,34,32,5)+q("M42 29H76V39H42Z","var(--tn)")+q("M76 29L81 25.500V35.500L76 39Z","#241a0f")+q(slits,SD)+
+  q("M56 11H63V20H56Z",F)+q("M56 11L79 1L83 6L63 15Z",F)+q("M79 1L83 6L84.500 4L81 0Z",SD)+q("M56 11L79 1L81 0L58 9.500Z",TP);
+};
 const BOXCOL="#c9a06a";
-NPCART.boxknight=c=>`<svg viewBox="24 0 72 72" aria-hidden="true">${BOXART("#e6bd80")}</svg>`;
+NPCART.boxknight=c=>`<svg viewBox="22 -4 80 80" aria-hidden="true">${BOXART("#e6bd80")}</svg>`;
 // The duel. Box Knight has 999,999 HP, shrugs off everything for 1 damage, cannot be stunned, and wins on his first hit. It is a friendly spar:
 // the player starts at full health, items are off, and nothing (health, cooldown, potions) carries over. Finishing one, either way, sets S.qp.bk for his quest.
 function bkDuel(){
   if(B&&!B.over)return;const c=Object.assign({},calc()),mp=20+c.L*2;
-  B={t:0,duel:1,col:BOXCOL,en:{n:"Box Knight",s:BOXART("#e6bd80")},c,e:{hp:999999,m:999999,atk:99999,def:999999},hp:c.hp,mp,mm:mp,log:["Box Knight folds his arms. They are also boxes."],sm:false,over:null,rw:[0,0]};
+  B={t:0,duel:1,col:BOXCOL,en:{n:"Box Knight",s:BOXART("#e6bd80"),vb:BOXVB,st:"aspect-ratio:3/5;width:min(180px,46vw);"},c,e:{hp:999999,m:999999,atk:99999,def:999999},hp:c.hp,mp,mm:mp,log:["Box Knight folds his arms. They are also boxes."],sm:false,over:null,rw:[0,0]};
   battleOpen=true;bView();
 }
 const BKHITS=["Box Knight taps you with a cardboard tube for 99,999.","Box Knight closes his lid on you for 99,999.","Box Knight falls on you. He is heavier than he looks. 99,999.","Box Knight gives you a paper cut for 99,999."];
