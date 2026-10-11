@@ -33,27 +33,27 @@ const NPCART={halvar:c=>{const h=`<path d="M60 6L53 10L49 2L50 16L42 20L36 32L35
   return `<svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="npg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2c313b"/><stop offset="1" stop-color="#0c0d11"/></linearGradient></defs><g fill="url(#npg)">${m(h)}</g><g fill="var(--tn)">${m(n)}</g><g fill="${c}">${m(e)}</g></svg>`}};
 // Box Knight, after Noros's sketch: a tall figure of separate floating cardboard boxes. Cube head with a slitted visor band and a box plume,
 // neck cube, torso tapering down, shoulder/elbow/waist cubes, box arms and legs in two segments, a sword in his right hand and a framed shield on his left arm.
-// Drawn on a tall 120 x 200 canvas (BOXVB) so he stands taller than the zone enemies. Each box has a front, a darker side and a lighter top face.
-const BOXVB="0 0 120 200";
+// Drawn on a tall 120 x 216 canvas (BOXVB) so he stands taller than the zone enemies. Each box has a front, a darker side and a lighter top face.
+const BOXVB="0 0 120 216";
 const BOXART=c=>{
   const F="url(#bxg)",SD="#3b2b19",TP="#b08a5c",q=(d,f)=>`<path d="${d}" fill="${f}"/>`;
   const box=(x,y,w,h,k=3)=>q(`M${x} ${y}H${x+w}V${y+h}H${x}Z`,F)+q(`M${x+w} ${y}L${x+w+k} ${y-k*.7}V${y+h-k}L${x+w} ${y+h}Z`,SD)+q(`M${x} ${y}L${x+k} ${y-k*.7}H${x+w+k}L${x+w} ${y}Z`,TP);
   const slits=[45.5,49.5,53.5,57.5,61.5,65.5,69.5].map(x=>`M${x} 30.500h1.600v7h-1.600Z`).join("");
-  return `<defs><linearGradient id="bxg" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="200"><stop offset="0" stop-color="#94724a"/><stop offset="1" stop-color="#5a4229"/></linearGradient></defs>`+
+  return `<defs><linearGradient id="bxg" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="216"><stop offset="0" stop-color="#94724a"/><stop offset="1" stop-color="#5a4229"/></linearGradient></defs>`+
   // sword (behind the hand), then the body from the feet up
-  q("M21 150L25 154L6 181L0 185L1 178Z",SD)+q("M14 152L28 160L26 163L12 155Z",TP)+
-  box(42,176,14,22)+box(65,176,14,22)+box(42,145,14,26)+box(65,145,14,26)+
+  q("M21 136L25 140L6 167L0 171L1 164Z",SD)+q("M14 138L28 146L26 149L12 141Z",TP)+
+  box(42,182,14,32)+box(65,182,14,32)+box(42,145,14,32)+box(65,145,14,32)+
   q("M47 120H74L81 140H40Z",F)+q("M74 120L78 117.500L85 137.500L81 140Z",SD)+q("M47 120L51 117.500H78L74 120Z",TP)+
   box(57,109,6,6,2)+
-  box(13,112,12,27)+box(12,143,13,12)+box(18,101,7,7,2)+box(13,72,12,25)+
-  box(96,74,11,24)+box(98,102,7,7,2)+
+  box(13,105,12,21)+box(12,129,13,12)+box(18,95,7,7,2)+box(13,72,12,20)+
+  box(96,74,11,19)+box(98,96,7,7,2)+
   q("M30 66H90L78 104H42Z",F)+q("M90 66L94 63.500L82 101.500L78 104Z",SD)+q("M30 66L34 63.500H94L90 66Z",TP)+
   q("M58.500 66h3v38h-3Z",c)+
   box(23,62,7,7,2)+box(90,62,7,7,2)+box(56,54,8,7,2)+
   // shield on his left arm (viewer's right): panel, inner frame, box emblem with a squiggle over it
-  q("M93 116L118 105V146L96 160Z",F)+q("M93 116L96 160L94 161L91 117Z",SD)+
-  `<path d="M98 120L114 113V143L100 152Z" fill="none" stroke="var(--tn)" stroke-width="1.400"/>`+
-  q("M103 133L108 131V138L103 140Z",c)+q("M108 131L111 131.500V138L108 138Z",TP)+`<path d="M102 126l2-2 2 2 2-3 2 2 2-2" fill="none" stroke="${c}" stroke-width="1.200"/>`+
+  q("M93 108L118 97V138L96 152Z",F)+q("M93 108L96 152L94 153L91 109Z",SD)+
+  `<path d="M98 112L114 105V135L100 144Z" fill="none" stroke="var(--tn)" stroke-width="1.400"/>`+
+  q("M103 125L108 123V130L103 132Z",c)+q("M108 123L111 123.500V130L108 130Z",TP)+`<path d="M102 118l2-2 2 2 2-3 2 2 2-2" fill="none" stroke="${c}" stroke-width="1.200"/>`+
   // head: cube, visor band with slits, plume box on top
   box(42,20,34,32,5)+q("M42 29H76V39H42Z","var(--tn)")+q("M76 29L81 25.500V35.500L76 39Z","#241a0f")+q(slits,SD)+
   q("M56 11H63V20H56Z",F)+q("M56 11L79 1L83 6L63 15Z",F)+q("M79 1L83 6L84.500 4L81 0Z",SD)+q("M56 11L79 1L81 0L58 9.500Z",TP);
@@ -64,7 +64,7 @@ NPCART.boxknight=c=>`<svg viewBox="22 -4 80 80" aria-hidden="true">${BOXART("#e6
 // the player starts at full health, items are off, and nothing (health, cooldown, potions) carries over. Finishing one, either way, sets S.qp.bk for his quest.
 function bkDuel(){
   if(B&&!B.over)return;const c=Object.assign({},calc()),mp=20+c.L*2;
-  B={t:0,duel:1,col:BOXCOL,en:{n:"Box Knight",s:BOXART("#e6bd80"),vb:BOXVB,st:"aspect-ratio:3/5;width:min(180px,46vw);"},c,e:{hp:999999,m:999999,atk:99999,def:999999},hp:c.hp,mp,mm:mp,log:["Box Knight folds his arms. They are also boxes."],sm:false,over:null,rw:[0,0]};
+  B={t:0,duel:1,col:BOXCOL,en:{n:"Box Knight",s:BOXART("#e6bd80"),vb:BOXVB,st:"aspect-ratio:5/9;width:min(175px,45vw);"},c,e:{hp:999999,m:999999,atk:99999,def:999999},hp:c.hp,mp,mm:mp,log:["Box Knight folds his arms. They are also boxes."],sm:false,over:null,rw:[0,0]};
   battleOpen=true;bView();
 }
 const BKHITS=["Box Knight taps you with a cardboard tube for 99,999.","Box Knight closes his lid on you for 99,999.","Box Knight falls on you. He is heavier than he looks. 99,999.","Box Knight gives you a paper cut for 99,999."];
