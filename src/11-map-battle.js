@@ -11,12 +11,15 @@ setInterval(()=>{const el=$("#cz");if(el)el.textContent=czTxt()},500);
 function mapSec(s){msec=s;render();$("#m").scrollTop=0}
 // Map tab: a home screen (current location + sections) and the Combat Zone section (travel, zones, battles).
 function mapView(){
-  const at=S.at,tr=S.trip,wn=S.wins||{};
+  const at=S.at,tr=S.trip,wn=S.wins||{},pl=placeHere();
+  // Sections: null = Map home, "combat" = Combat Zone, or the id of the settlement in the current zone (see 11b-camp.js).
+  if(msec&&msec!="combat"&&!(pl&&pl.id==msec))msec=null;
+  if(pl&&msec==pl.id)return placeView();
   if(msec!="combat"){
     const st=czTxt();
     return `<h1>Map</h1>
   <div class="row" style="gap:8px;margin:2px 0 16px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--acc)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none" aria-hidden="true"><path d="M12 21s7-6.2 7-11.5a7 7 0 0 0-14 0C5 14.800 12 21 12 21z"/><circle cx="12" cy="9.500" r="2.500"/></svg><div class="sp"><div class="mu" style="margin:0;font-size:13px">Current location</div><b style="font:700 19px Cinzel,serif">${at!=null?ZN[at][0]:"Nowhere yet"}</b></div></div>
-  <button class="card row" style="width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer" onclick="mapSec('combat')" aria-label="Open Combat Zone">${swI(34)}<div class="sp"><b style="font:700 18px Cinzel,serif">Combat Zone</b><div class="mu" style="margin:0;font-size:13px">Travel between zones and battle what lives there.</div><div style="font-size:13px;font-weight:600;color:var(--acc);margin-top:2px" id="cz">${st}</div></div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--mute)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>`;
+  <button class="card row" style="width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer" onclick="mapSec('combat')" aria-label="Open Combat Zone">${swI(34)}<div class="sp"><b style="font:700 18px Cinzel,serif">Combat Zone</b><div class="mu" style="margin:0;font-size:13px">Travel between zones and battle what lives there.</div><div style="font-size:13px;font-weight:600;color:var(--acc);margin-top:2px" id="cz">${st}</div></div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--mute)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>${placeCard()}`;
   }
   const fmt=m=>Math.floor(m)+":"+String(Math.floor(m%1*60)).padStart(2,"0");
   const tc=tr?(()=>{const{need,el}=tripLeft(),z=ZN[tr.z];return `<div class="card"><b class="sp" style="font:700 17px Cinzel,serif">${tr.k=="run"?"Running":"Walking"} to ${z[0]}</b>

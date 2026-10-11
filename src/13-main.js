@@ -13,7 +13,7 @@ function mk(){
 function sv(){const n=$("#rn").value.trim();if(!n){$("#rn").focus();return}S.routines.push({name:n,ex:[...gen]});save();render();toast("Routine saved")}
 function begin(ex,name){run={name,t0:Date.now(),items:ex.map(e=>({ex:e,rows:newRows(e)}))};render();$("#m").scrollTop=0}
 function fin(){
-  const ups=[],done=[];let sets=0,stp=0;const L0=lvl()[0];daily();
+  const ups=[],done=[];let sets=0,stp=0;const L0=lvl()[0],qr0=qReady();daily();
   run.items.forEach(it=>{const e=EX[it.ex],b=rk(it.ex),ds=[];
     it.rows.forEach(r=>{const w=+r.w,n=+r.r;if(!r.done||!(n>0)||(e.t=="w"&&!(w>0)))return;ds.push([e.t=="w"?w:0,n]);if(e.g=="Cardio")stp+=e.t=="m"?Math.round(Math.min(120,n)*100):Math.round(n*2);sets+=e.t=="m"?Math.min(6,Math.max(1,Math.round(n/5))):1;const v=e.t!="w"?n:w*(1+n/30);S.pr=S.pr||{};const pp=S.pr[it.ex],pv=pp?(e.t!="w"?pp.r:pp.w*(1+pp.r/30)):0;if(v>pv)S.pr[it.ex]={w:e.t=="w"?w:0,r:n};if(v>(S.best[it.ex]||0))S.best[it.ex]=Math.round(v*10)/10});
     if(ds.length)done.push([it.ex,ds]);
@@ -21,7 +21,7 @@ function fin(){
   const gain=7*sets+25*ups.length,gold=6*sets+25*ups.length;S.xp+=gain;S.gold+=gold;S.steps=steps()+stp;const hurt=hpNow()<hpMax();S.hp=null;const L1=lvl()[0];
   // ex = what was actually done: [[exercise, [[weight, reps or minutes], ...]], ...]. Kept for the newest 400 workouts.
   S.log.push({d:Date.now(),name:run.name,dur:Date.now()-run.t0,ex:done,xp:gain,g:gold,st:stp});if(S.log.length>400)S.log.slice(0,-400).forEach(l=>{delete l.ex});save();run=null;go("barracks");
-  toast("+"+gain+" XP · +"+gold+" Gold"+(stp?" · +"+stp.toLocaleString()+" Steps":"")+(L1>L0?" · Level "+L1+"!":"")+(hurt?" · Fully healed":"")+(ups.length?" · Rank up: "+ups.join(", "):""));
+  toast("+"+gain+" XP · +"+gold+" Gold"+(stp?" · +"+stp.toLocaleString()+" Steps":"")+(L1>L0?" · Level "+L1+"!":"")+(hurt?" · Fully healed":"")+(ups.length?" · Rank up: "+ups.join(", "):"")+(qReady()>qr0?" · Quest goal met. Report back at the Camp.":""));
 }
 function rs(){if(!sure){sure=true;settings();return}bodyWipe();const ac=USER&&S.uid===USER.uid?{uid:S.uid,rv:S.rv,ms:S.ms,fc:S.fc}:{};S=Object.assign({name:"Recruit",bw:180,routines:[],best:{},log:[],xp:0,rest:60,gold:0,inv:[],eq:{},v2:1,v3:1,pot:{},bf:{},since:Date.now()},ac);daily();save();delete document.documentElement.dataset.theme;sure=false;gen=null;closeInfo();render()}
 function exportSave(){const b=new Blob([JSON.stringify(S)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="barracks-save-"+new Date().toISOString().slice(0,10)+".json";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);toast("Save exported")}
