@@ -1,5 +1,5 @@
 const KEY="barracks-v1";
-let S={name:"Recruit",bw:180,routines:[],best:{},log:[],xp:0,rest:60,gold:0,inv:[],eq:{}};
+let S={name:"Recruit",bw:180,at:0,routines:[],best:{},log:[],xp:0,rest:60,gold:0,inv:[],eq:{}};
 try{Object.assign(S,JSON.parse(localStorage.getItem(KEY)||"{}"))}catch(e){}
 if(!S.xp)S.xp=S.log.length*80;
 if(S.gold==null)S.gold=S.log.length*50;

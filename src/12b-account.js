@@ -17,7 +17,7 @@ function fbLoad(){
   return fbP;
 }
 
-const freshSave=()=>({name:"Recruit",bw:180,routines:[],best:{},log:[],xp:0,rest:60,gold:0,inv:[],eq:{},v2:1,v3:1,pot:{},bf:{},since:Date.now()});
+const freshSave=()=>({name:"Recruit",bw:180,at:0,routines:[],best:{},log:[],xp:0,rest:60,gold:0,inv:[],eq:{},v2:1,v3:1,pot:{},bf:{},since:Date.now()});
 const lvlOf=x=>{let l=1;x=x||0;while(x>=l*100){x-=l*100;l++}return l};
 const hasProg=o=>!!((o.log||[]).length||o.xp>0||(o.inv||[]).length||(o.routines||[]).length||Object.keys(o.best||{}).length);
 const timed=(p,ms)=>Promise.race([p,new Promise((_,no)=>setTimeout(()=>no({code:"unavailable"}),ms))]);
@@ -70,7 +70,7 @@ function adoptCloud(c){
   let o=null;try{o=JSON.parse(c.data)}catch(e){}
   if(!o||typeof o!="object"||!Array.isArray(o.log))throw{code:"bad-save"};
   if(hasProg(S)&&!S.uid){try{localStorage.setItem(KEY+"-backup",JSON.stringify(S))}catch(e){}}
-  S=Object.assign({name:"Recruit",bw:180,routines:[],best:{},log:[],xp:0,rest:60,gold:0,inv:[],eq:{},v2:1,v3:1},o);
+  S=Object.assign({name:"Recruit",bw:180,at:0,routines:[],best:{},log:[],xp:0,rest:60,gold:0,inv:[],eq:{},v2:1,v3:1},o);
   renameEx(S);S.uid=USER.uid;S.rv=c.rev;S.ms=S.mt=c.updated||o.mt||Date.now();pend=false;persist();
   if(S.theme)document.documentElement.dataset.theme=S.theme;else delete document.documentElement.dataset.theme;
   daily();drawHud();

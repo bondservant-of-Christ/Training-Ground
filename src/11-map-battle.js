@@ -85,13 +85,14 @@ function act(a){
   if(!B||B.over)return;const e=B.e,c=B.c,L=[],hp0=B.hp,ehp0=e.hp;let blk=false,stun=false;
   const hit=(raw,ch,nm,ign)=>{if(Math.random()>ch){L.push("Your "+nm+" misses.");return}const d=ign?Math.max(1,Math.round(raw)):dmgTo(raw,e.def);e.hp-=d;L.push("Your "+nm+" hits for "+d+".")};
   if(a=="slash")hit(c.atk*rr(.9,1.2),.92,"slash");
-  else if(a=="bash"){hit(c.atk*rr(1.5,1.9),.65,"bash");if(L[0].includes("hits")&&Math.random()<.35){stun=true;L.push("The "+B.en.n+" is stunned!")}}
+  else if(a=="bash"){hit(c.atk*rr(1.5,1.9),.65,"bash");if(L[0].includes("hits")&&!B.duel&&Math.random()<.35){stun=true;L.push("The "+B.en.n+" is stunned!")}}
   else if(a=="block"){blk=true;B.mp=Math.min(B.mm,B.mp+6);L.push("You raise your guard.")}
   else if(a=="fire"){const fc=fireCost();if(B.mp<fc)return;B.mp-=fc;B.fc=(B.fc||0)+1;hit(c.atk*rr(1.9,2.3),1,"Fireball",1)}
-  else if(a.startsWith("pot:")){const x=ITM.find(i=>i.id==a.slice(4));if(!x||have(x.id)<1||x.k!="heal")return;S.pot[x.id]--;const h2=Math.min(c.hp-B.hp,Math.round(c.hp*x.v));B.hp+=h2;L.push("You drink "+x.n+" and recover "+h2+" HP.")}
+  else if(a.startsWith("pot:")){const x=ITM.find(i=>i.id==a.slice(4));if(B.duel||!x||have(x.id)<1||x.k!="heal")return;S.pot[x.id]--;const h2=Math.min(c.hp-B.hp,Math.round(c.hp*x.v));B.hp+=h2;L.push("You drink "+x.n+" and recover "+h2+" HP.")}
   else if(a=="mend"){const mc=mendCost();if(B.mp<mc)return;B.mp-=mc;B.mc=(B.mc||0)+1;const h=Math.round(c.hp*.35);B.hp=Math.min(c.hp,B.hp+h);L.push("You mend "+h+" HP.")}
   B.sm=false;
-  if(e.hp<=0){e.hp=0;B.over="win";const t=B.t,g=Math.round(15+t*15+rr(0,8)),x=12+t*8;S.gold+=g;S.xp+=x;S.wins=S.wins||{};S.wins[B.t]=(S.wins[B.t]||0)+1;B.rw=[g,x];L.push("Victory!");save()}
+  if(B.duel)duelTurn(L,blk);
+  else if(e.hp<=0){e.hp=0;B.over="win";const t=B.t,g=Math.round(15+t*15+rr(0,8)),x=12+t*8;S.gold+=g;S.xp+=x;S.wins=S.wins||{};S.wins[B.t]=(S.wins[B.t]||0)+1;B.rw=[g,x];L.push("Victory!");save()}
   else{
     if(stun)L.push("It cannot act this turn.");
     else if(Math.random()<.92){let d=dmgTo(e.atk*rr(.8,1.2)*(Math.random()<.15?1.6:1),c.def);if(blk)d=Math.max(1,Math.round(d*.25));B.hp-=d;L.push("The "+B.en.n+" hits you for "+d+(blk?" (blocked).":"."))}
@@ -99,22 +100,23 @@ function act(a){
     B.mp=Math.min(B.mm,B.mp+2);
     if(B.hp<=0){B.hp=0;B.over="lose";L.push("You were defeated and retreat.")}
   }
-  S.hp=B.hp;if(B.over)S.cd=Date.now()+CD*1000;save();B.log=B.log.concat(L).slice(-5);B.fx=B.hp<hp0?"hurt":(B.e.hp<ehp0?"hit":null);bView();
+  // A duel (11b-camp.js) is a friendly spar: it never touches saved health or the battle cooldown.
+  if(!B.duel){S.hp=B.hp;if(B.over)S.cd=Date.now()+CD*1000}save();B.log=B.log.concat(L).slice(-5);B.fx=B.hp<hp0?"hurt":(B.e.hp<ehp0?"hit":null);bView();
 }
 function bView(){
   const e=B.e,pc=(a,b)=>Math.max(0,a/b*100),z=ZN[B.t],gone=!!B.over,win=B.over=="win";
   const bar=(v,m,col,h=12)=>`<div class="bar" style="height:${h}px;margin-top:0"><i style="width:${pc(v,m)}%;background:${col}"></i></div>`;
   const fx=B.fx;B.fx=null;
   const sub=(l,s)=>`${l}<br><small>${s}</small>`;
-  const ctl=gone?`<div class="card" style="text-align:center;margin:0"><b style="font:700 20px Cinzel,serif">${win?"Victory":"Defeat"}</b><div class="mu" style="margin:4px 0 10px">${win?"+"+B.rw[0]+" Gold · +"+B.rw[1]+" XP":"You earned nothing this time. Gear up and try again."}</div><div class="row" style="gap:8px"><button class="btn" id="bf" ${bOff()?"disabled":""} onclick="startBattle()">${bTxt("Fight again")}</button><button class="btn ghost" onclick="closeInfo()">Leave</button></div></div>`
+  const ctl=gone&&B.duel?duelEnd(win):gone?`<div class="card" style="text-align:center;margin:0"><b style="font:700 20px Cinzel,serif">${win?"Victory":"Defeat"}</b><div class="mu" style="margin:4px 0 10px">${win?"+"+B.rw[0]+" Gold · +"+B.rw[1]+" XP":"You earned nothing this time. Gear up and try again."}</div><div class="row" style="gap:8px"><button class="btn" id="bf" ${bOff()?"disabled":""} onclick="startBattle()">${bTxt("Fight again")}</button><button class="btn ghost" onclick="closeInfo()">Leave</button></div></div>`
   :B.sm===true?`<div class="bg6"><button class="btn" style="grid-column:span 3" ${B.mp>=fireCost()?"":"disabled"} onclick="act('fire')">${sub("Fireball",fireCost()+" MP · ignores armor")}</button><button class="btn" style="grid-column:span 3" ${B.mp>=mendCost()?"":"disabled"} onclick="act('mend')">${sub("Mend",mendCost()+" MP · heal 35%")}</button><button class="btn ghost" style="grid-column:span 6" onclick="B.sm=false;bView()">Back</button></div>`
   :B.sm=="items"?`<div class="bg6">${ITM.filter(i=>i.k=="heal"&&have(i.id)>0).map(x=>`<button class="btn" style="grid-column:span 6" onclick="act('pot:${x.id}')">${sub(x.n+" × "+have(x.id),x.d)}</button>`).join("")||'<p class="mu" style="grid-column:span 6;margin:0">You have no healing potions.</p>'}<button class="btn ghost" style="grid-column:span 6" onclick="B.sm=false;bView()">Back</button></div>`
-  :`<div class="bg6"><button class="btn" style="grid-column:span 2" onclick="act('slash')">${sub("Slash","Reliable")}</button><button class="btn" style="grid-column:span 2" onclick="act('bash')">${sub("Bash","Heavy, may stun")}</button><button class="btn" style="grid-column:span 2" onclick="act('block')">${sub("Block","Less damage")}</button><button class="btn ghost" style="grid-column:span 3" onclick="B.sm=true;bView()">${sub("Spell","Uses MP")}</button><button class="btn ghost" style="grid-column:span 3" onclick="B.sm='items';bView()">${sub("Items","Healing potions")}</button></div>`;
+  :`<div class="bg6"><button class="btn" style="grid-column:span 2" onclick="act('slash')">${sub("Slash","Reliable")}</button><button class="btn" style="grid-column:span 2" onclick="act('bash')">${sub("Bash","Heavy, may stun")}</button><button class="btn" style="grid-column:span 2" onclick="act('block')">${sub("Block","Less damage")}</button><button class="btn ghost" style="grid-column:span 3" onclick="B.sm=true;bView()">${sub("Spell","Uses MP")}</button><button class="btn ghost" style="grid-column:span 3" ${B.duel?"disabled":""} onclick="B.sm='items';bView()">${sub("Items",B.duel?"Not in a duel":"Healing potions")}</button></div>`;
   $("#info").innerHTML=`<div class="sheet bsh">
-  <div class="row"><div class="sp"><b style="font:700 18px Cinzel,serif">${z[0]}</b></div>${gone?"":'<button class="btn sm ghost" id="ic" onclick="closeInfo()">Flee</button>'}</div>
-  <div class="arena" style="--ac:${COL[B.t]}">
-    <div class="en-nm" style="color:${mixc(COL[B.t],0,.25)}">${B.en.n}</div>
-    <div class="en-hp" role="progressbar" aria-label="Enemy health" aria-valuenow="${e.hp}" aria-valuemin="0" aria-valuemax="${e.m}">${bar(e.hp,e.m,"#c0564f",14)}<div class="mu" style="margin:3px 0 0;font-size:12px;text-align:center">${e.hp} / ${e.m} HP</div></div>
+  <div class="row"><div class="sp"><b style="font:700 18px Cinzel,serif">${B.duel?"Duel":z[0]}</b></div>${gone?"":'<button class="btn sm ghost" id="ic" onclick="closeInfo()">Flee</button>'}</div>
+  <div class="arena" style="--ac:${B.col||COL[B.t]}">
+    <div class="en-nm" style="color:${mixc(B.col||COL[B.t],0,.25)}">${B.en.n}</div>
+    <div class="en-hp" role="progressbar" aria-label="Enemy health" aria-valuenow="${e.hp}" aria-valuemin="0" aria-valuemax="${e.m}">${bar(e.hp,e.m,"#c0564f",14)}<div class="mu" style="margin:3px 0 0;font-size:12px;text-align:center">${e.hp.toLocaleString()} / ${e.m.toLocaleString()} HP</div></div>
     <div class="en-art ${fx=="hit"?"eshake":""}" style="${win?"opacity:.25;filter:grayscale(1)":""}"><svg viewBox="0 0 120 120" aria-hidden="true">${B.en.s}</svg></div>
     <div class="en-gr"></div>
     <div class="blog" aria-live="polite">${B.log.slice(-3).map(l=>`<div>${l}</div>`).join("")}</div>
