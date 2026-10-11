@@ -33,15 +33,39 @@ const NPCART={halvar:c=>{const h=`<path d="M60 6L53 10L49 2L50 16L42 20L36 32L35
   return `<svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="npg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2c313b"/><stop offset="1" stop-color="#0c0d11"/></linearGradient></defs><g fill="url(#npg)">${m(h)}</g><g fill="var(--tn)">${m(n)}</g><g fill="${c}">${m(e)}</g></svg>`}};
 // Box Knight, after Noros's sketch: a tall figure of separate floating cardboard boxes. Cube head with a slitted visor band and a box plume,
 // neck cube, torso tapering down, shoulder/elbow/waist cubes, box arms and legs in two segments, a sword in his right hand and a framed shield on his left arm.
-// Drawn on a tall 120 x 216 canvas (BOXVB) so he stands taller than the zone enemies. Each box has a front, a darker side and a lighter top face.
-const BOXVB="0 0 120 216";
+// Drawn on a tall canvas with room for the sword and shield (BOXVB) so he stands taller than the zone enemies. Each box has a front, a darker side and a lighter top face.
+const BOXVB="-30 -8 160 228";
+// His sword and shield are deliberately over the top: the only ornate, glowing things on a cardboard man. Keep the box logo on the shield.
+const BOXSH="M-15 -21L-8 -24L0 -21L8 -24L15 -21V2C15 13 7 20 0 25C-7 20 -15 13 -15 2Z";
+const BOXDEFS=`<linearGradient id="bxs" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#cfd9e6"/></linearGradient><linearGradient id="bxo" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff2b0"/><stop offset=".5" stop-color="#f0bf3a"/><stop offset="1" stop-color="#a8760f"/></linearGradient><linearGradient id="bxb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a5ad6"/><stop offset="1" stop-color="#141f5c"/></linearGradient><filter id="bxgl" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3"/></filter><clipPath id="bxc"><path d="${BOXSH}" transform="scale(.8)"/></clipPath>`;
+const bxq=(d,f,x="")=>`<path d="${d}" fill="${f}" ${x}/>`,BXG='stroke="#6e5010" stroke-width=".7" stroke-linejoin="round"';
+// Greatsword: glowing steel blade with a gold fuller and rune diamonds, winged gold crossguard with a ruby, banded grip, jewelled pommel. Drawn pointing down, then rotated into his right hand.
+const boxSword=()=>{const B="M-6 12H6L7.500 21L5 70L0 90L-5 70L-7.500 21Z";
+  return `<g transform="translate(18 135) rotate(29)">`+bxq(B,"#4fdcff",'opacity=".7" filter="url(#bxgl)"')+bxq(B,"url(#bxs)",'stroke="#8fa3ba" stroke-width=".6"')+bxq("M0 12H6L7.500 21L5 70L0 90Z","#a9b9cc")+
+  bxq("M-1.300 15H1.300L1 64L0 71L-1 64Z","url(#bxo)")+[25,36,47,58].map(y=>bxq(`M0 ${y-3.2}L2.200 ${y}L0 ${y+3.2}L-2.200 ${y}Z`,"#4fdcff",'stroke="#fff" stroke-width=".5"')).join("")+
+  bxq("M-2.600 -12H2.600V6H-2.600Z","#3b2413")+[-9,-4,1].map(y=>bxq(`M-2.600 ${y}h5.200v1.500h-5.200Z`,"url(#bxo)")).join("")+
+  bxq("M-20 3L-16 -3L-12 4L-5 8L0 4.500L5 8L12 4L16 -3L20 3L18 11L8 12L0 17L-8 12L-18 11Z","url(#bxo)",BXG)+bxq("M0 6.500L3.200 10.500L0 14.500L-3.200 10.500Z","#e8334f",'stroke="#fff" stroke-width=".5"')+
+  `<circle cx="-17" cy="5" r="1.800" fill="#4fdcff" stroke="#fff" stroke-width=".4"/><circle cx="17" cy="5" r="1.800" fill="#4fdcff" stroke="#fff" stroke-width=".4"/>`+
+  `<circle cx="0" cy="-16.500" r="4.800" fill="url(#bxo)" ${BXG}/><circle cx="0" cy="-16.500" r="2.200" fill="#e8334f" stroke="#fff" stroke-width=".4"/>`+bxq("M0 -26.500L2 -21H-2Z","url(#bxo)",BXG)+`</g>`};
+// Heater shield: glowing gold rim, royal blue field with a sunburst, laurels, a crown, gems and studs, and his box logo (a taped cardboard box) in the centre.
+const boxShield=(c,TP)=>{const rays=Array.from({length:12},(_,i)=>{const a=i*Math.PI/6,b=a+.13,r=30,f=n=>n.toFixed(1);return `M0 1L${f(Math.cos(a-.13)*r)} ${f(1+Math.sin(a-.13)*r)}L${f(Math.cos(b)*r)} ${f(1+Math.sin(b)*r)}Z`}).join(""),
+  laurel=`<path d="M-4.500 10C-9 8-10.500 2-9 -5" fill="none" stroke="url(#bxo)" stroke-width="1"/>`+[[-8,6,-40],[-9.800,2,-15],[-9.600,-2.500,10]].map(([x,y,r])=>`<ellipse cx="${x}" cy="${y}" rx="2.300" ry="1" fill="url(#bxo)" transform="rotate(${r} ${x} ${y})"/>`).join("");
+  return `<g transform="translate(106 126) skewY(-20) scale(1.3)">`+bxq(BOXSH,"#ffd24a",'opacity=".75" filter="url(#bxgl)"')+bxq(BOXSH,"url(#bxo)",BXG)+
+  `<g clip-path="url(#bxc)">`+bxq(BOXSH,"url(#bxb)",'transform="scale(.8)"')+bxq(rays,"#ffffff",'opacity=".13"')+`</g>`+bxq(BOXSH,"none",'transform="scale(.8)" stroke="#fff2b0" stroke-width=".7"')+
+  laurel+`<g transform="scale(-1 1)">${laurel}</g>`+
+  bxq("M-5 -8.500V-13.500L-2.500 -11L0 -15L2.500 -11L5 -13.500V-8.500Z","url(#bxo)",BXG)+
+  // the box logo
+  bxq("M-6 -2.500L0 -5.500L6 -2.500L0 .5Z",TP)+bxq("M-6 -2.500L0 .5V8.500L-6 5.500Z","#94724a")+bxq("M6 -2.500L0 .5V8.500L6 5.500Z","#5a4229")+bxq("M-3.700 -3.650L-2.300 -4.350L3.700 -1.350L2.300 -.650Z",c)+bxq("M-3.700 -1.350L-2.300 -.650V2.600L-3.700 1.900Z",c)+
+  bxq("M0 -24.800L2.600 -21.800L0 -18.800L-2.600 -21.800Z","#e8334f",'stroke="#fff" stroke-width=".4"')+bxq("M0 18.500L2.200 21.300L0 24.100L-2.200 21.300Z","#3ddc84",'stroke="#fff" stroke-width=".4"')+
+  [[-13.300,-9,1.700,"#4fdcff"],[13.300,-9,1.700,"#4fdcff"],[-13.300,3,1,"#fff2b0"],[13.300,3,1,"#fff2b0"],[-9.500,13.500,1,"#fff2b0"],[9.500,13.500,1,"#fff2b0"]].map(([x,y,r,f])=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${f}" stroke="#6e5010" stroke-width=".3"/>`).join("")+`</g>`};
+const boxSparks=()=>[[-17,168,5],[4,201,3.5],[-25,188,3],[126,92,5],[86,158,3.5],[121,166,3]].map(([x,y,r])=>bxq(`M${x} ${y-r}L${x+r*.22} ${y-r*.22}L${x+r} ${y}L${x+r*.22} ${y+r*.22}L${x} ${y+r}L${x-r*.22} ${y+r*.22}L${x-r} ${y}L${x-r*.22} ${y-r*.22}Z`,"#fff8d6")).join("");
 const BOXART=c=>{
   const F="url(#bxg)",SD="#3b2b19",TP="#b08a5c",q=(d,f)=>`<path d="${d}" fill="${f}"/>`;
   const box=(x,y,w,h,k=3)=>q(`M${x} ${y}H${x+w}V${y+h}H${x}Z`,F)+q(`M${x+w} ${y}L${x+w+k} ${y-k*.7}V${y+h-k}L${x+w} ${y+h}Z`,SD)+q(`M${x} ${y}L${x+k} ${y-k*.7}H${x+w+k}L${x+w} ${y}Z`,TP);
   const slits=[45.5,49.5,53.5,57.5,61.5,65.5,69.5].map(x=>`M${x} 30.500h1.600v7h-1.600Z`).join("");
-  return `<defs><linearGradient id="bxg" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="216"><stop offset="0" stop-color="#94724a"/><stop offset="1" stop-color="#5a4229"/></linearGradient></defs>`+
+  return `<defs><linearGradient id="bxg" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="216"><stop offset="0" stop-color="#94724a"/><stop offset="1" stop-color="#5a4229"/></linearGradient>${BOXDEFS}</defs>`+
   // sword (behind the hand), then the body from the feet up
-  q("M21 136L25 140L6 167L0 171L1 164Z",SD)+q("M14 138L28 146L26 149L12 141Z",TP)+
+  boxSword()+
   box(42,182,14,32)+box(65,182,14,32)+box(42,145,14,32)+box(65,145,14,32)+
   q("M47 120H74L81 140H40Z",F)+q("M74 120L78 117.500L85 137.500L81 140Z",SD)+q("M47 120L51 117.500H78L74 120Z",TP)+
   box(57,109,6,6,2)+
@@ -50,10 +74,8 @@ const BOXART=c=>{
   q("M30 66H90L78 104H42Z",F)+q("M90 66L94 63.500L82 101.500L78 104Z",SD)+q("M30 66L34 63.500H94L90 66Z",TP)+
   q("M58.500 66h3v38h-3Z",c)+
   box(23,62,7,7,2)+box(90,62,7,7,2)+box(56,54,8,7,2)+
-  // shield on his left arm (viewer's right): panel, inner frame, box emblem with a squiggle over it
-  q("M93 108L118 97V138L96 152Z",F)+q("M93 108L96 152L94 153L91 109Z",SD)+
-  `<path d="M98 112L114 105V135L100 144Z" fill="none" stroke="var(--tn)" stroke-width="1.400"/>`+
-  q("M103 125L108 123V130L103 132Z",c)+q("M108 123L111 123.500V130L108 130Z",TP)+`<path d="M102 118l2-2 2 2 2-3 2 2 2-2" fill="none" stroke="${c}" stroke-width="1.200"/>`+
+  // shield on his left arm (viewer's right), drawn in front of the body
+  boxShield(c,TP)+boxSparks()+
   // head: cube, visor band with slits, plume box on top
   box(42,20,34,32,5)+q("M42 29H76V39H42Z","var(--tn)")+q("M76 29L81 25.500V35.500L76 39Z","#241a0f")+q(slits,SD)+
   q("M56 11H63V20H56Z",F)+q("M56 11L79 1L83 6L63 15Z",F)+q("M79 1L83 6L84.500 4L81 0Z",SD)+q("M56 11L79 1L81 0L58 9.500Z",TP);
@@ -64,7 +86,7 @@ NPCART.boxknight=c=>`<svg viewBox="22 -4 80 80" aria-hidden="true">${BOXART("#e6
 // the player starts at full health, items are off, and nothing (health, cooldown, potions) carries over. Finishing one, either way, sets S.qp.bk for his quest.
 function bkDuel(){
   if(B&&!B.over)return;const c=Object.assign({},calc()),mp=20+c.L*2;
-  B={t:0,duel:1,col:BOXCOL,en:{n:"Box Knight",s:BOXART("#e6bd80"),vb:BOXVB,st:"aspect-ratio:5/9;width:min(175px,45vw);"},c,e:{hp:999999,m:999999,atk:99999,def:999999},hp:c.hp,mp,mm:mp,log:["Box Knight folds his arms. They are also boxes."],sm:false,over:null,rw:[0,0]};
+  B={t:0,duel:1,col:BOXCOL,en:{n:"Box Knight",s:BOXART("#e6bd80"),vb:BOXVB,st:"aspect-ratio:40/57;width:min(234px,60vw);"},c,e:{hp:999999,m:999999,atk:99999,def:999999},hp:c.hp,mp,mm:mp,log:["Box Knight folds his arms. They are also boxes."],sm:false,over:null,rw:[0,0]};
   battleOpen=true;bView();
 }
 const BKHITS=["Box Knight taps you with a cardboard tube for 99,999.","Box Knight closes his lid on you for 99,999.","Box Knight falls on you. He is heavier than he looks. 99,999.","Box Knight gives you a paper cut for 99,999."];
