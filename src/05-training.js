@@ -45,7 +45,8 @@ function training(){
   ${gen?`<div class="card"><h2>Your ${M0[1].toLowerCase()} workout</h2>${gen.map(e=>exRow(e,`<span class="mu" style="margin:0">${EX[e].t=="r"?"3 × max":EX[e].t=="m"?"1 × time":"3 × 8–12"}</span>`)).join("")}
   <input id="rn" placeholder="Routine name" style="margin-top:10px"><div class="gap"><button class="btn sm" onclick="begin(gen,'${M0[1]} workout')">Start</button><button class="btn sm ghost" onclick="sv()">Save routine</button></div></div>`:""}
   <h2>Saved routines</h2>${S.routines.length?S.routines.map((r,i)=>`<div class="card"><div class="row"><div class="sp"><b>${esc(r.name)}</b><div class="mu" style="margin:0">${r.ex.length} exercises</div></div><button class="btn sm ghost" onclick="prev=S.routines[${i}];render()">Preview</button><button class="btn sm" onclick="begin(S.routines[${i}].ex,S.routines[${i}].name)">Start</button><button class="btn sm ghost" aria-label="Delete routine" onclick="S.routines.splice(${i},1);save();render()">Delete</button></div></div>`).join(""):'<p class="mu">No routines yet. Generate or create one.</p>'}
-  ${S.log.length?'<button class="btn ghost" style="margin-top:4px" onclick="historySheet()">Workout history</button>':""}`;
+  ${S.log.length?'<button class="btn ghost" style="margin-top:4px" onclick="historySheet()">Workout history</button>':""}
+  <button class="btn ghost" style="margin-top:8px" onclick="customSheet()">Custom exercises${(S.cx||[]).length?" ("+S.cx.length+")":""}</button>`;
 }
 const EQS=[["all","All"],["h","Home"],["d","Dumbbells"],["g","Gym"]],norm=s=>s.toLowerCase().replace(/[^a-z0-9]+/g," ").trim(),syn=w=>({deltoid:"delt",deltoids:"delt",delts:"delt",flies:"fly",flys:"fly",flyes:"fly",flye:"fly"})[w]||w;
 const hit=(n,q)=>{const a=" "+norm(n);return norm(q).split(" ").every(w=>a.includes(" "+syn(w))||(w.length>3&&w.endsWith("es")&&a.includes(" "+w.slice(0,-2)))||(w.length>3&&w.endsWith("s")&&a.includes(" "+w.slice(0,-1))))};
@@ -61,7 +62,7 @@ function builder(){
   ${build.ex.length?build.ex.map((e,i)=>exRow(e,`<button class="btn sm ghost" onclick="build.ex.splice(${i},1);render()">Remove</button>`)).join(""):'<p class="mu">No exercises yet. Add some below.</p>'}
   <div class="gap"><button class="btn sm" onclick="bsave()">Save routine</button><button class="btn sm ghost" onclick="build=null;render()">Cancel</button></div></div>
   <h2>Add exercises</h2>${sbar(bq,"sbq","Search all exercises")}<div id="bgc" ${bq.trim()?"hidden":""}>${chipRow(Object.keys(G).map(g=>[g,g]),bg,"sbg")}</div>${chipRow(EQS,bm,"sbm")}
-  <div id="bl">${blist()}</div>`;
+  <div id="bl">${blist()}</div><button class="btn ghost" onclick="customSheet(0,'build')">Can't find it? Create a custom exercise</button>`;
 }
 const sm=k=>{mode=k;gen=null;render()},sbg=k=>{bg=k;render()},sbm=k=>{bm=k;render()};
 function bsave(){if(!build.name.trim()||!build.ex.length){toast("Add a name and at least one exercise");return}S.routines.push({name:build.name.trim(),ex:[...build.ex]});save();build=null;render();toast("Routine saved")}
@@ -106,7 +107,7 @@ function exPick(keep){
   $("#info").innerHTML=`<div class="sheet">${sheetHead("Add exercise")}
   <p class="mu" style="margin-top:4px">Adds to this workout only. Your saved routine stays the same.</p>
   ${sbar(pq,"spq","Search all exercises")}<div id="pgc" ${pq.trim()?"hidden":""}>${chipRow(Object.keys(G).map(g=>[g,g]),pg,"spg")}</div>${chipRow(EQS,pm,"spm")}
-  <div id="pl">${plist()}</div></div>`;
+  <div id="pl">${plist()}</div><button class="btn ghost" onclick="customSheet(0,'run')">Can't find it? Create a custom exercise</button></div>`;
   openSheet(keep);
 }
 function adj(d){run.rest.dur=Math.min(120,Math.max(30,run.rest.dur+d));run.rest.done=false;render()}
@@ -118,4 +119,44 @@ function pinfo(ex){
 function pbox(ex){
   const P=S.pr&&S.pr[ex],bx=(v,u)=>`<div class="pbx"><b>${v}</b><span>${u}</span></div>`;
   return EX[ex].t!="w"?bx(S.best[ex],UNIT(EX[ex].t)):bx(P?P.w:"—","lb")+bx(P?P.r:"—","reps");
+}
+
+// ---- Custom exercises (Training > Custom exercises, or "Can't find it?" in the routine builder and Add exercise picker)
+const CTYPE=[["w","Weight and reps"],["r","Reps only"],["m","Minutes"]],CEQ=[["g","Gym"],["d","Dumbbells"],["h","Bodyweight"],["a","Anywhere"]];
+let cxf={n:"",g:"Chest",t:"w",m:"g"},cxBack=null,cxMsg="",cxDel=null;
+function customSheet(keep,back){
+  if(!keep){cxBack=back||null;cxMsg="";cxDel=null;cxf={n:"",g:cxBack=="build"?bg:cxBack=="run"?pg:"Chest",t:"w",m:"g"}}
+  const L=S.cx||[],ch=(k,opts)=>`<div class="chips">${opts.map(([v,l])=>`<button class="chip ${cxf[k]==v?"on":""}" aria-pressed="${cxf[k]==v}" onclick="cxSet('${k}','${v}')">${l}</button>`).join("")}</div>`;
+  $("#info").innerHTML=`<div class="sheet"><div class="row"><h1 class="sp" style="margin:0;font-size:23px">Custom exercises</h1><button class="btn sm ghost" id="ic" onclick="${cxBack=="run"?"exPick(1)":"closeInfo()"}">${cxBack=="run"?"Back":"Close"}</button></div>
+  <p class="mu" style="margin-top:4px">Add any exercise the app doesn't have. It works like the built-in ones: routines, workouts, history and its own medallion.</p>
+  <div class="card"><label class="mu" for="cxn" style="display:block;margin-bottom:4px;font-size:13px">Name</label><input id="cxn" maxlength="32" autocomplete="off" placeholder="e.g. Viking Press" value="${esc(cxf.n)}" oninput="cxf.n=this.value">
+  <div class="mu" style="margin:12px 0 6px;font-size:13px">Muscle group</div>${ch("g",Object.keys(G).map(g=>[g,g]))}
+  <div class="mu" style="margin:0 0 6px;font-size:13px">How you log it</div>${ch("t",CTYPE)}
+  <div class="mu" style="margin:0 0 6px;font-size:13px">Equipment</div>${ch("m",CEQ)}
+  ${cxMsg?`<p role="alert" style="color:var(--acc);font-weight:600;margin:0 0 10px">${esc(cxMsg)}</p>`:""}
+  <button class="btn" onclick="cxAdd()">${cxBack?"Create and add":"Create exercise"}</button></div>
+  ${L.length?`<h2>Your custom exercises</h2>${L.map((x,i)=>`<div class="card row"><div class="sp"><b>${esc(x.n)}</b><div class="mu" style="margin:0;font-size:13px">${esc(x.g)} · ${(CEQ.find(e=>e[0]==x.m)||["",""])[1]} · ${(CTYPE.find(e=>e[0]==x.t)||["",""])[1]}</div></div><button class="btn sm ghost" onclick="cxRm(${i})">${cxDel===i?"Tap again":"Delete"}</button></div>`).join("")}`:""}</div>`;
+  openSheet(keep);
+}
+function cxSet(k,v){const i=$("#cxn");if(i)cxf.n=i.value;cxf[k]=v;customSheet(1)}
+function cxAdd(){
+  const i=$("#cxn"),n=String(i?i.value:cxf.n).trim().replace(/\s+/g," ");cxf.n=n;
+  const low=n.toLowerCase(),dupe=Object.keys(EX).find(e=>e.toLowerCase()==low);
+  if(!n){cxMsg="Give it a name first.";customSheet(1);return}
+  if(!cxOk(n)){cxMsg="Use 2 to 32 letters, numbers, spaces or - ( ) / . + and start with a letter or number.";customSheet(1);return}
+  if(dupe){cxMsg="“"+dupe+"” already exists"+(EX[dupe].c?" as one of your custom exercises.":". You can find it by searching.");customSheet(1);return}
+  S.cx=(S.cx||[]).concat([{n,g:cxf.g,t:cxf.t,m:cxf.m}]);save();cxMsg="";
+  if(cxBack=="build"&&build){build.ex.push(n);bq="";closeInfo();render();toast("Created "+n+" and added it to your routine.");return}
+  if(cxBack=="run"&&run){run.items.push({ex:n,rows:newRows(n)});render();pq="";exPick(1);toast("Created "+n+" and added it to this workout.");return}
+  cxf.n="";customSheet(1);render();toast("Created "+n+".");
+}
+// Deleting removes it from saved routines and clears its medallion. Past workouts keep their record of it.
+function cxRm(i){
+  const x=(S.cx||[])[i];if(!x)return;
+  if(run&&run.items.some(it=>it.ex==x.n)){toast("Remove it from your current workout first.");return}
+  if(build&&build.ex.includes(x.n)){toast("Remove it from the routine you're building first.");return}
+  if(cxDel!==i){cxDel=i;customSheet(1);return}
+  cxDel=null;S.cx.splice(i,1);delete S.best[x.n];if(S.pr)delete S.pr[x.n];
+  S.routines.forEach(r=>{r.ex=r.ex.filter(e=>e!=x.n)});S.routines=S.routines.filter(r=>r.ex.length);
+  if(gen)gen=gen.filter(e=>e!=x.n);save();customSheet(1);render();toast("Deleted "+x.n+".");
 }

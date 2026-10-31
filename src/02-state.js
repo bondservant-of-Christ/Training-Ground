@@ -7,7 +7,14 @@ if(!S.inv)S.inv=[];
 if(!S.eq)S.eq={};
 if(S.theme)document.documentElement.dataset.theme=S.theme;
 // save(1) is a quiet save: housekeeping (streak tick, migrations) that should not count as "this device has newer progress" when syncing.
-const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+// Custom exercises (S.cx = [{n,g,t,m}]): merged into G and EX so they work everywhere. Re-applied whenever S is persisted.
+const BUILTIN=new Set(Object.keys(EX)),CTH={w:[.25,.4,.6,.85,1.1],r:[10,25,40,60,80],m:[10,20,35,50,70]};
+const cxOk=n=>typeof n=="string"&&/^[A-Za-z0-9][A-Za-z0-9 ()\/.+-]{1,31}$/.test(n);
+function applyCustom(){
+  Object.keys(G).forEach(g=>{G[g]=G[g].filter(e=>!e[4])});Object.keys(EX).forEach(n=>{if(EX[n].c)delete EX[n]});
+  (Array.isArray(S.cx)?S.cx:[]).forEach(x=>{if(!x||!cxOk(x.n)||BUILTIN.has(x.n)||EX[x.n]||!G[x.g]||!CTH[x.t]||!["h","d","g","a"].includes(x.m))return;G[x.g].push([x.n,x.t,CTH[x.t],x.m,1]);EX[x.n]={g:x.g,t:x.t,th:ex9(CTH[x.t],x.t),m:x.m,c:1}});
+}
+const persist=()=>{applyCustom();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const save=q=>{if(q!==1)S.mt=Date.now();persist();if(typeof drawHud=="function")drawHud();if(typeof cloudTouch=="function")cloudTouch()};
 if(!S.since){S.since=(S.log[0]&&S.log[0].d)||Date.now();save(1)}
 if(!S.v2){const OP={w1:100,w2:250,w3:400,w4:600,w5:900,w6:1400,w7:3000,a1:100,a2:300,a3:500,a4:800,a5:1600,a6:3200};let r=0;(S.inv||[]).forEach(id=>{r+=OP[id]||0});S.gold=(S.gold||0)+r;S.inv=[];S.eq={};S.v2=1;if(r)S.refund=r;save(1)}
@@ -20,6 +27,7 @@ function renameEx(o){let ch=false;
   (o.routines||[]).forEach(r=>{if(r&&Array.isArray(r.ex))r.ex=r.ex.map(e=>{if(EXREN[e]){ch=true;return EXREN[e]}return e}).filter((e,i,l)=>l.indexOf(e)==i)});
   return ch}
 if(renameEx(S))save(1);
+applyCustom();
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 let tab="barracks",sel=new Set(),gen=null,run=null,sure=false,mode="h",mm="all",build=null,prev=null,bg="Chest",bm="all",editing=false,bq="",aq="",pq="",pg="Chest",pm="all";
